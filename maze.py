@@ -1,8 +1,6 @@
 #create a maze solver first following bookmark then try and do the puzzle one
+import time
 
-
-#need to keep a dictionary of visited spaces
-#found_dict[v][h]['found'] = 'Left'
 class Maze(object):
 
     def __init__(self):
@@ -10,22 +8,20 @@ class Maze(object):
         self.find_start()
         self.game_over = False
 
-
     def load_maze(self):
-
-        #with open('maze_layout.txt', 'r') as maze_read:
-        #with open('maze_layout_no_alt_path.txt', 'r') as maze_read:
+        # with open('maze_layout.txt', 'r') as maze_read:
+        # with open('maze_layout_no_alt_path.txt', 'r') as maze_read:
         # with open('maze_layout_complex.txt', 'r') as maze_read:
-        with open('maze_layout_more_complex.txt', 'r') as maze_read:
+        # with open('maze_layout_more_complex.txt', 'r') as maze_read:
+        # with open('maze_layout_another_complex.txt', 'r') as maze_read:
+        with open('maze_layout_last_complex.txt', 'r') as maze_read:
             maze_in = maze_read.read().splitlines()
         #get board dimensions
         self.v_size = len(maze_in)
         self.h_size = len(maze_in[0])
-
         self.main_maze = []
         for line in maze_in:
             self.main_maze.append(list(line))
-
         self.build_blank_found()
 
     def build_blank_found(self):
@@ -34,12 +30,7 @@ class Maze(object):
             self.found_dict[v] = {}
             for h in range(self.h_size):
                 self.found_dict[v][h] = {'found':['']}
-
         #print("Build Test:{}".format(self.found_dict[0][0]))
-
-
-
-
 
     def find_start(self):
         for v in range(self.v_size):
@@ -47,8 +38,7 @@ class Maze(object):
                 if self.main_maze[v][h] == 'S':
                     self.start_v = v
                     self.start_h = h
-
-        print("Starting coordinates:{},{}".format(self.start_v,self.start_h))
+        #print("Starting coordinates:{},{}".format(self.start_v,self.start_h))
 
     def print_maze(self):
         for v in range(self.v_size):
@@ -57,25 +47,22 @@ class Maze(object):
             print("")
 
     def game_play(self):
-
+        start = time.time()
         self.solve_maze(self.start_v, self.start_h)
         self.print_maze()
-
+        end = time.time()
+        ms_time = round(((end-start) * 1000),4)
+        print("Game over, maze completed!\nTime for completion: {} ms".format(ms_time))
         #direction arrow not resetting when changing direction
 
     def solve_maze(self, v_search, h_search):
-
+        if self.main_maze[v_search][h_search] != 'S':
+            self.main_maze[v_search][h_search] = 'O'
         self.print_maze()
-        input("Next Step?\n>")
-        #print(self.found_dict)
-        #game_over is True when you hit E
 
-        if self.game_over:
-            print("Leave")
-            #exit
-
+        #input("Next Step?\n>")
         while not self.game_over:
-            print("Game Over: {}".format(self.game_over))
+            #print("Game Over: {}".format(self.game_over))
             move_found = False #Use this to see when you don't have a move available and need to go back
             #had to add game over checks to each direction
             if not self.game_over:
@@ -86,13 +73,12 @@ class Maze(object):
                         print("Opening found below")
                         move_found = True
                         self.found_dict[v_search][h_search]['found'].append('Down')
-                        self.main_maze[v_search+1][h_search] = 'O'
-                        #change icon to direction
+                        #change icon to direction if not the start piece
                         if self.main_maze[v_search][h_search] != 'S':
                             self.main_maze[v_search][h_search] = 'v'
                         self.solve_maze(v_search+1,h_search)
 
-                    #if you find exit break the while loop
+                    #if you find exit set game_over = True
                     elif self.main_maze[v_search+1][h_search] == 'E':
                         print("Found Exit below")
                         move_found = True
@@ -101,6 +87,7 @@ class Maze(object):
                         if self.main_maze[v_search][h_search] != 'S':
                             self.main_maze[v_search][h_search] = 'v'
                         self.game_over = True
+
             if not self.game_over:
                 #up, 1 because 0 will always be a wall
                 if v_search > 1:
@@ -109,13 +96,12 @@ class Maze(object):
                         print("Opening found above")
                         move_found = True
                         self.found_dict[v_search][h_search]['found'].append('Up')
-                        self.main_maze[v_search-1][h_search] = 'O'
                         #change icon to direction
                         if self.main_maze[v_search][h_search] != 'S':
                             self.main_maze[v_search][h_search] = '^'
                         self.solve_maze(v_search-1,h_search)
 
-                    #if you find exit break the while loop
+                    #if you find exit set game_over = True
                     elif self.main_maze[v_search-1][h_search] == 'E':
                         print("Found Exit Above")
                         move_found = True
@@ -135,13 +121,12 @@ class Maze(object):
                         print("Opening found to the right")
                         move_found = True
                         self.found_dict[v_search][h_search]['found'].append('Right')
-                        self.main_maze[v_search][h_search+1] = 'O'
                         #change icon to direction
                         if self.main_maze[v_search][h_search] != 'S':
                             self.main_maze[v_search][h_search] = '>'
                         self.solve_maze(v_search,h_search+1)
 
-                    #if you find exit break the while loop
+                    #if you find exit set game_over = True
                     elif self.main_maze[v_search][h_search+1] == 'E':
                         print("Found Exit right")
                         move_found = True
@@ -159,12 +144,12 @@ class Maze(object):
                         print("Opening found to the left")
                         move_found = True
                         self.found_dict[v_search][h_search]['found'].append('Left')
-                        self.main_maze[v_search][h_search-1] = 'O'
                         #change icon to direction
                         if self.main_maze[v_search][h_search] != 'S':
                             self.main_maze[v_search][h_search] = '<'
                         self.solve_maze(v_search,h_search-1)
 
+                    #if you find exit set game_over = True
                     elif self.main_maze[v_search][h_search-1] == 'E':
                         print("Found Exit left")
                         move_found = True
@@ -177,26 +162,24 @@ class Maze(object):
 
 
             if not move_found:
-                #print("No move found")
                 move_found = False
-                input("Next step(Move not found)?\n>")
+                print("Move not found")
                 self.main_maze[v_search][h_search] = 'X'
+
                 #reset found for this block
                 self.found_dict[v_search][h_search]['found'] = ['']
                 self.print_maze()
+                #input("Next step(Move not found)?\n>")
+
                 #go back to previous piece and search a direction that wasn't found already or continue going back
                 return
+
+            #not sure if this is needed
             if self.game_over:
                 break
 
 
-
-
-
-
-
-
 if __name__ == '__main__':
     m = Maze()
-    m.print_maze()
+    #m.print_maze()
     m.game_play()
