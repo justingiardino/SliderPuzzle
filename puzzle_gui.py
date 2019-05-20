@@ -94,12 +94,15 @@ class Board(object):
                 while self.main_board[block_piece].start_v not in self.main_board[block_piece].final_v:
                     print("Moving piece: \'{}\' out of the way.".format(block_piece))
                     #need to pass prefferred direction
-                    #always try to move piece down first
+                    #always try to move piece down first - #why?
                     self.move_main(block_piece, 'Down')
                     if self.main_board[block_piece].length == 2:
                         self.move_main(block_piece, 'Up')
 
 
+
+    #probably going to have to combine move_main and check_blocking_piece into one function, where it has current piece, piece blocking it, and preferred direction
+    #should I use arrows to show where pieces have been in case I need to go back?
 
     #pass in a preferred direction variable
     def move_main(self,piece,preferred_direction):
@@ -179,7 +182,7 @@ class Board(object):
             for blocking_piece in self.main_board[piece].in_path[preferred_direction]:
                 self.check_blocking_piece(piece,blocking_piece)
 
-        print("Piece: {} is bocked".format(piece))
+        print("**End of move_main block\nPiece: {} is bocked".format(piece))
         self.print_board()
         input("Keep searching?\n>")
 

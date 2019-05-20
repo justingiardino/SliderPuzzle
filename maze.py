@@ -12,9 +12,9 @@ class Maze(object):
         # with open('maze_layout.txt', 'r') as maze_read:
         # with open('maze_layout_no_alt_path.txt', 'r') as maze_read:
         # with open('maze_layout_complex.txt', 'r') as maze_read:
-        # with open('maze_layout_more_complex.txt', 'r') as maze_read:
+        with open('maze_layout_more_complex.txt', 'r') as maze_read:
         # with open('maze_layout_another_complex.txt', 'r') as maze_read:
-        with open('maze_layout_last_complex.txt', 'r') as maze_read:
+        # with open('maze_layout_last_complex.txt', 'r') as maze_read:
             maze_in = maze_read.read().splitlines()
         #get board dimensions
         self.v_size = len(maze_in)
@@ -60,7 +60,7 @@ class Maze(object):
             self.main_maze[v_search][h_search] = 'O'
         self.print_maze()
 
-        #input("Next Step?\n>")
+        input("Next Step?\n>")
         while not self.game_over:
             #print("Game Over: {}".format(self.game_over))
             move_found = False #Use this to see when you don't have a move available and need to go back
@@ -169,7 +169,7 @@ class Maze(object):
                 #reset found for this block
                 self.found_dict[v_search][h_search]['found'] = ['']
                 self.print_maze()
-                #input("Next step(Move not found)?\n>")
+                input("Next step(Move not found)?\n>")
 
                 #go back to previous piece and search a direction that wasn't found already or continue going back
                 return
