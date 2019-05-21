@@ -71,12 +71,15 @@ class Board(object):
             print("Piece:{}, Length:{}, Start_v:{}, Start_h:{}, Direction:{}\nIn_path:{}, final_v: {}".format(piece,self.main_board[piece].length,self.main_board[piece].start_v,self.main_board[piece].start_h,self.main_board[piece].direction,self.main_board[piece].in_path, self.main_board[piece].final_v))
 
     def print_board(self):
-        print("  0 1 2 3 4 5 ",end='')
+        print("   0 1 2 3 4 5 \n :=============:",end='')
         for v in range(6):
-            print("\n{} ".format(v),end='')
+            print("\n{}| ".format(v),end='')
             for h in range(6):
                 print("{} ".format(self.show_board[v][h]),end='')
-        print('\n')
+            #skip the exit wall
+            if v != 2:
+                print("|",end='')
+        print('\n :=============:')
 
     #maybe need an undo move?
     #run this function assuming that move is valid, not doing any boundary or direction checking
@@ -123,6 +126,7 @@ class Board(object):
         while not self.game_over:
             print("Trying to move x")
             allowed_moves = self.check_move('x')
+            print("\'x\' allowed moves: {}".format(allowed_moves))
             #final position, game over
             if self.main_board['x'].start_h == 4 and self.main_board['x'].start_v == 3:
                 self.game_over = True
@@ -157,15 +161,24 @@ class Board(object):
             return
 
 
-
+    #recursion function
     def move_block(self, current_piece, blocking_piece, move_direction):
         open_coords = self.get_open_coords(current_piece, move_direction)
         v_open = open_coords['v']
         h_open = open_coords['h']
         print("Need position v:{},h:{} open for: {}".format(v_open, h_open, current_piece))
+
+        if self.main_board[blocking_piece].direction == 'v':
+            direction_list = ['Up', 'Down']
+        else:
+            direction_list = ['Left', 'Right']
+
+        try_direction = direction_list.pop()#remove entry from direction_list so you don't try it again
+
         #go through this loop until you can move this piece
         while self.show_board[v_open][h_open] != '.':
             input("Start of while loop\n>")
+
 
 
     def revert_move():
