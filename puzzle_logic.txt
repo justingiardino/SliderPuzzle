@@ -1,0 +1,44 @@
+idea: keep track of bad moves(at least 15) that don't help open up a valid move, when that number is reached move pieces back until you get to bad moves equal 0 and then change piece search direction
+
+need: when trying to move make sure piece isn't hitting boundary, if piece is at boundary and it is still blocking x piece, change direction
+
+game over loop:
+  if x is in game over location:
+    game over True
+  elif x can move right(closer to exit):
+    x move right
+    update start positions
+  else:
+    find what is blocking x to the right
+    call recursion using current piece, blocking piece, and right
+
+recursion function called move_block with input of current piece, blocking piece, direction, and coordinates dictionary:
+  get coordinates of location you need opened(space to the right) in dictionary - (Maybe create a function)
+  while blocking piece starting positions are not equal coordinates dictionary:
+
+    if blocking piece can move in direction to get it closer to valid direction (will probably only work for piece of size 3)
+      move blocking piece in direction
+      update start positions
+      add move to move list using append like this move list.append({'piece':'c', 'direction':'Down'})
+      bad moves = 0
+
+    elif bad moves is equal to 15 (maybe 20, don't want to go forever):
+      revert moves #need to create this function
+      check other direction if it exists using length of new blocking direction
+        if other direction does exist, call recursion using blocing piece, new blocking piece and the other direction
+
+    elif blocking piece has hit a wall
+      set bad moves equal to 15 to cause it to revert and try a new direction
+    else:
+      calculate new blocking piece
+      calculate new blocking directions, may be list of 1 or 2 objects, use pop
+      bad moves += 1
+      call recursion using blocking piece, new blocking piece, and new blocking direction[0]
+
+revert moves
+
+get open coordinates function with input of current piece and blocking piece
+  if blocking piece is vertical
+    if blocking piece length is 3
+
+  else: - piece is horizontal

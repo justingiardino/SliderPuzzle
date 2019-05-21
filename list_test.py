@@ -31,6 +31,16 @@
 #         if 'Up' in found_dict[v][h]['found']:
 #                 print("Up found at v:{}, h:{}".format(v,h))
 
-my_list = ['Test']
-for item in my_list:
-    print(item)
+# my_list = ['']
+# if 'Right' in my_list:
+#     print('Found right')
+# else:
+#     print('Not found')
+my_list = []
+my_list.append({'c':'Right'})
+my_list.append({'a':'Left'})
+print(len(my_list))
+
+print(my_list.pop())
+print(my_list.pop())
+print(my_list.pop())

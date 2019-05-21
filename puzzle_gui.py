@@ -7,10 +7,12 @@ class Board(object):
         self.main_board = {}
         self.show_board = [['.' for x in range(6)] for y in range(6)]
         self.game_over = False
+        self.bad_moves = 0 #need this like a global variable
+        self.current_path_moves = []
 
         self.load_board()
         self.get_pieces_in_path()
-        self.build_final_pos()
+        self.build_final_pos()#don't think I'll need this, just leaving it uncommented to run old functions
         self.print_piece_stats()
         self.print_board()
 
@@ -76,14 +78,126 @@ class Board(object):
                 print("{} ".format(self.show_board[v][h]),end='')
         print('\n')
 
+    #maybe need an undo move?
+    #run this function assuming that move is valid, not doing any boundary or direction checking
+    def move_piece(self, piece, direction):
 
-# '''
-# Solver logic
-# Find final positions of all vertical pieces that could block x
-# Start by trying to move each of those out of the way, or
-#     if you can't move one of those, try moving pieces that are in their way
-# '''
+        if direction == 'Down':
+            print("Moving: {} down".format(piece))
+            #set current pixel to .
+            self.show_board[self.main_board[piece].start_v][self.main_board[piece].start_h] = '.'
+            #update pixel below
+            self.show_board[self.main_board[piece].start_v+self.main_board[piece].length][self.main_board[piece].start_h] = piece
+            #update start point
+            self.main_board[piece].start_v += 1
+        elif direction == 'Up':
+            print("Moving: {} Up".format(piece))
+            #update start point
+            self.main_board[piece].start_v -= 1
+            #set new top to current letter
+            self.show_board[self.main_board[piece].start_v][self.main_board[piece].start_h] = piece
+            #set bottom pixel to .
+            self.show_board[self.main_board[piece].start_v+self.main_board[piece].length][self.main_board[piece].start_h] = '.'
+        elif direction == 'Left':
+            print("Moving: {} Left".format(piece))
+            #update start point
+            self.main_board[piece].start_h -= 1
+            #set new left to current letter
+            self.show_board[self.main_board[piece].start_v][self.main_board[piece].start_h] = piece
+            #set old right pixel to .
+            self.show_board[self.main_board[piece].start_v][self.main_board[piece].start_h+self.main_board[piece].length] = '.'
+        elif direction == 'Right':
+            print("Moving: {} Right".format(piece))
+            #Set current pixel to .
+            self.show_board[self.main_board[piece].start_v][self.main_board[piece].start_h] = '.'
+            #update pixel to the right
+            self.show_board[self.main_board[piece].start_v][self.main_board[piece].start_h+self.main_board[piece].length] = piece
+            #update start point
+            self.main_board[piece].start_h += 1
+        else:
+            print("Not good - bad move. Current piece: {}".format(piece))
+
+
     def move_x_block(self):
+        self.print_board()
+        while not self.game_over:
+            print("Trying to move x")
+            allowed_moves = self.check_move('x')
+            #final position, game over
+            if self.main_board['x'].start_h == 4 and self.main_board['x'].start_v == 3:
+                self.game_over = True
+            #can move right, closer to final position
+            elif 'Right' in allowed_moves:
+                self.move_piece('x', 'Right')
+                self.print_board()
+
+                input("Piece: {} moved: {}\nKeep searching?\n>".format('x', 'Right'))
+            #can't move right, need to move blocking piece
+            else:
+                #x_blocks = self.main_board['x'].in_path['Right']
+                #need to find piece that is blocking you directly to the Right
+                x_block = self.show_board[self.main_board['x'].start_v][self.main_board['x'].start_h+self.main_board['x'].length]
+                #need to find location that blocking piece should be so x can move
+                input("Piece currently blocking x: {} In direction: {}\nCalling Recursion\n>".format(x_block, 'Right'))
+                self.move_block('x', x_block, 'Right')
+
+
+    def get_open_coords(self, current_piece, needed_direction):
+        print("Checking what coordinates need to be open")
+        if needed_direction == 'Left':
+            return {'v':self.main_board[current_piece].start_v, 'h':self.main_board[current_piece].start_h-1}
+        elif needed_direction == 'Right':
+            return {'v':self.main_board[current_piece].start_v, 'h':self.main_board[current_piece].start_h+self.main_board[current_piece].length}
+        elif needed_direction == 'Up':
+            return {'v':self.main_board[current_piece].start_v-1, 'h':self.main_board[current_piece].start_h}
+        elif needed_direction == 'Down':
+            return {'v':self.main_board[current_piece].start_v+self.main_board[current_piece].length, 'h':self.main_board[current_piece].start_h}
+        else:
+            print("Get open coords went wrong..")
+            return
+
+
+
+    def move_block(self, current_piece, blocking_piece, move_direction):
+        open_coords = self.get_open_coords(current_piece, move_direction)
+        v_open = open_coords['v']
+        h_open = open_coords['h']
+        print("Need position v:{},h:{} open for: {}".format(v_open, h_open, current_piece))
+        #go through this loop until you can move this piece
+        while self.show_board[v_open][h_open] != '.':
+            input("Start of while loop\n>")
+
+
+    def revert_move():
+        #once list is empty it will exit
+        while current_path_moves:
+            current_move = current_path_moves.pop()
+            if current_move['direction'] == 'Left':
+                print("Reverting piece: {}Bad moves left to undo: {}".format(current_move['piece'],len(current_path_moves)))
+                self.move_piece(current_move['piece'], 'Right')#opposite direction
+                self.print_board()
+                input("Keep searching?\n>")
+            elif current_move['direction'] == 'Right':
+                print("Reverting piece: {}Bad moves left to undo: {}".format(current_move['piece'],len(current_path_moves)))
+                self.move_piece(current_move['piece'], 'Left')#opposite direction
+                self.print_board()
+                input("Keep searching?\n>")
+            elif current_move['direction'] == 'Up':
+                print("Reverting piece: {}Bad moves left to undo: {}".format(current_move['piece'],len(current_path_moves)))
+                self.move_piece(current_move['piece'], 'Down')#opposite direction
+                self.print_board()
+                input("Keep searching?\n>")
+            elif current_move['direction'] == 'Down':
+                print("Reverting piece: {}Bad moves left to undo: {}".format(current_move['piece'],len(current_path_moves)))
+                self.move_piece(current_move['piece'], 'Up')#opposite direction
+                self.print_board()
+                input("Keep searching?\n>")
+            else:
+                print("Not good - bad revert move. Current piece: {}".format(current_move['piece']))
+
+
+
+    def move_x_block_old(self):
         #self.main_board[piece].in_path
         #only grabbing right for now
         x_blocks = self.main_board['x'].in_path['Right']
@@ -228,7 +342,7 @@ class Board(object):
 
         while not self.game_over:
             self.print_board
-            self.move_x_block()
+            self.move_x_block_old()
 
     def get_pieces_in_path(self):
         for piece in self.piece_list:
@@ -365,7 +479,8 @@ if __name__== "__main__":
     #piece_test()
     my_board = Board()
     #my_board.show_valid_moves()
-    my_board.game_play_computer()
+    #my_board.game_play_computer()
+    my_board.move_x_block()
 
 
 
