@@ -16,7 +16,8 @@ recursion function called move_block with input of current piece, blocking piece
   get coordinates of location you need opened(space to the right) in dictionary - (Maybe create a function)
   while blocking piece starting positions are not equal coordinates dictionary:
 
-    if blocking piece can move in direction to get it closer to valid direction (will probably only work for piece of size 3)
+    START HERE
+    if blocking piece can move in direction
       move blocking piece in direction
       update start positions
       add move to move list using append like this move list.append({'piece':'c', 'direction':'Down'})
@@ -25,7 +26,7 @@ recursion function called move_block with input of current piece, blocking piece
     elif bad moves is equal to 15 (maybe 20, don't want to go forever):
       revert moves #need to create this function
       check other direction if it exists using length of new blocking direction
-        if other direction does exist, call recursion using blocing piece, new blocking piece and the other direction
+        if other direction does exist, reset direction check variable
 
     elif blocking piece has hit a wall
       set bad moves equal to 15 to cause it to revert and try a new direction
