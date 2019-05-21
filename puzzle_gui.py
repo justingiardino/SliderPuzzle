@@ -14,7 +14,7 @@ class Board(object):
         self.get_pieces_in_path()
         self.build_final_pos()#don't think I'll need this, just leaving it uncommented to run old functions
         self.print_piece_stats()
-        self.print_board()
+        #self.print_board()
 
 
     def load_board(self):
@@ -120,13 +120,13 @@ class Board(object):
         else:
             print("Not good - bad move. Current piece: {}".format(piece))
 
-
+    #Basically the main game
     def move_x_block(self):
         self.print_board()
         while not self.game_over:
             print("Trying to move x")
             allowed_moves = self.check_move('x')
-            print("\'x\' allowed moves: {}".format(allowed_moves))
+            print("x allowed moves: {}".format(allowed_moves))
             #final position, game over
             if self.main_board['x'].start_h == 4 and self.main_board['x'].start_v == 3:
                 self.game_over = True
@@ -143,7 +143,7 @@ class Board(object):
                 x_block = self.show_board[self.main_board['x'].start_v][self.main_board['x'].start_h+self.main_board['x'].length]
                 #need to find location that blocking piece should be so x can move
                 input("Piece currently blocking x: {} In direction: {}\nCalling Recursion\n>".format(x_block, 'Right'))
-                self.move_block('x', x_block, 'Right')
+                self.move_block_recursion('x', x_block, 'Right')
 
 
     def get_open_coords(self, current_piece, needed_direction):
@@ -160,9 +160,18 @@ class Board(object):
             print("Get open coords went wrong..")
             return
 
+    #check what the icon of the piece directly in that direction
+    def get_block_in_direction(self, piece, direction):
+        print("Checking what is blocking this piece")
+        #need to check and make sure piece is not blocking you
+        if direction == 'Left':
+            return self.show_board[self.main_board[piece].start_v][self.main_board[piece].start_h-1]
+
+        pass
+
 
     #recursion function
-    def move_block(self, current_piece, blocking_piece, move_direction):
+    def move_block_recursion(self, current_piece, blocking_piece, move_direction):
         open_coords = self.get_open_coords(current_piece, move_direction)
         v_open = open_coords['v']
         h_open = open_coords['h']
@@ -177,7 +186,19 @@ class Board(object):
 
         #go through this loop until you can move this piece
         while self.show_board[v_open][h_open] != '.':
-            input("Start of while loop\n>")
+
+            input("Trying to move piece: {} in direction: {}\nStart of while open space not empty loop\n>".format(blocking_piece, try_direction))
+            valid_move_list = self.check_move(blocking_piece)
+
+            if try_direction in valid_move_list:
+                self.move_piece(blocking_piece,try_direction)
+                #need to append this move to list
+                self.print_board()
+
+            else:
+                print("Can't move piece: {} in direction: {}.".format(blocking_piece, try_direction))
+
+
 
 
 

@@ -19,13 +19,13 @@ recursion function called move_block with input of current piece, blocking piece
     directions = up and down
   else ( blocking piece is horizontal)
     directions = left and Right
-  direction = directions.pop - get one of the directions, later check to see if you have already tried both directions. If you have, and can't move any more then the piece is not helpful and needs to be reverted to previous step
+  try_direction = directions.pop - get one of the directions, later check to see if you have already tried both directions. If you have, and can't move any more then the piece is not helpful and needs to be reverted to previous step
   while blocking piece starting positions are not equal coordinates dictionary:
     #will need to clean up this logic a bit more, don't have direction variable any more, maybe check up and then down if up fails, or check right and then left if right fails
 
     START HERE
-    if blocking piece can move in direction
-      move blocking piece in direction
+    if blocking piece can move in try_direction
+      move blocking piece in try_direction
       update start positions
       add move to move list using append like this move list.append({'piece':'c', 'direction':'Down'})
       bad moves = 0
