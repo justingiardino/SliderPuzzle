@@ -23,7 +23,7 @@ recursion function called move_block with input of current piece, blocking piece
   while blocking piece starting positions are not equal coordinates dictionary:
     #will need to clean up this logic a bit more, don't have direction variable any more, maybe check up and then down if up fails, or check right and then left if right fails
 
-    START HERE
+
     if blocking piece can move in try_direction
       move blocking piece in try_direction
       update start positions
