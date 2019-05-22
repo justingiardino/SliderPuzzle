@@ -36,11 +36,8 @@ recursion function called move_block with input of current piece, blocking piece
       (will probably need to keep track of if I want to move back or not), keep going back if after you go back there is another direction available
 
 
-    elif blocking piece has hit a wall
-      set bad moves equal to 15 to cause it to revert and try a new direction
-      probably a return here
     else:
-      calculate new blocking piece
+      calculate new blocking piece, check if wall, if wall set bad moves equal to 15 to start reverting
       calculate new blocking directions, may be list of 1 or 2 objects, use pop
       bad moves += 1
       call recursion using blocking piece, new blocking piece, and new blocking direction[0]

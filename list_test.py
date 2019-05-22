@@ -43,4 +43,12 @@ print(len(my_list))
 
 print(my_list.pop())
 print(my_list.pop())
-print(my_list.pop())
+if len(my_list) > 0:
+    print(my_list.pop())
+else:
+    print("list empty")
+
+for i in range(1,5):
+    print(i)
+    if i == 3:
+        break
