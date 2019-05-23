@@ -42,7 +42,9 @@ my_list.append({'a':'Left'})
 print(len(my_list))
 
 k = my_list.pop()
-print("k: {} v: {}".format(k.keys(),k.values()))
+#this works in spyder but not in anaconda command line
+print('\033[0;31m dark, \033[1;31m light.\033[0m')
+print('Checking to make sure color was reset')
 print(my_list.pop())
 if len(my_list) > 0:
     print(my_list.pop())

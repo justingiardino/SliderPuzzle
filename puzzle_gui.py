@@ -1,8 +1,35 @@
 #looks like it's getting stuck on finding x again, d is trying to force x out of the way when trying to go up. This is a bad direction and why I need to get the revert working
 
+#need to install termcolor on mac
+#from termcolor import colored
+'''
+Color Codes
+W  = '\033[0m'  # white (normal)
+R  = '\033[31m' # red
+G  = '\033[32m' # green
+O  = '\033[33m' # orange
+B  = '\033[34m' # blue
+P  = '\033[35m' # purple
+LP  = '\033[36m' # light purple
+GY  = '\033[37m' # gray
+'''
+
+'''
+Black       0;30     Dark Gray     1;30
+Blue        0;34     Light Blue    1;34
+Green       0;32     Light Green   1;32
+Cyan        0;36     Light Cyan    1;36
+Red         0;31     Light Red     1;31
+Purple      0;35     Light Purple  1;35
+Brown       0;33     Yellow        1;33
+Light Gray  0;37     White         1;37
+'''
+
+
 class Board(object):
 
     def __init__(self):
+        self.color_dict{'x':'\033[31m','a':'\033[32m','b':'\033[33m'}
         self.piece_list =[]
         self.main_board = {}
         self.show_board = [['.' for x in range(6)] for y in range(6)]
@@ -68,7 +95,7 @@ class Board(object):
 
     def print_piece_stats(self):
         for piece in self.piece_list:
-            print("Piece:{}, Length:{}, Start_v:{}, Start_h:{}, Direction:{}\nIn_path:{}".format(piece,self.main_board[piece].length,self.main_board[piece].start_v,self.main_board[piece].start_h,self.main_board[piece].direction,self.main_board[piece].in_path))
+            print("Piece:{}, Length:{}, Start_v:{}, Start_h:{}, Direction:{}".format(piece,self.main_board[piece].length,self.main_board[piece].start_v,self.main_board[piece].start_h,self.main_board[piece].direction))
 
     def print_board(self):
         print("   0 1 2 3 4 5 \n :=============:",end='')
@@ -140,7 +167,6 @@ class Board(object):
                 input("Piece: {} moved: {}\nKeep searching?\n>".format('x', 'Right'))
             #can't move right, need to move blocking piece
             else:
-                #x_blocks = self.main_board['x'].in_path['Right']
                 #need to find piece that is blocking you directly to the Right
                 x_block = self.show_board[self.main_board['x'].start_v][self.main_board['x'].start_h+self.main_board['x'].length]
                 #need to find location that blocking piece should be so x can move
@@ -171,7 +197,7 @@ class Board(object):
 
 
             #swapped this one from second check to first, want to make sure it doesn't run away in a direction
-            if self.bad_move_count > 15 and self.moving_forward == True:
+            if self.bad_move_count > 20 and self.moving_forward == True:
                 self.moving_forward = False
                 input("Hit {} \"bad\" moves\n>".format(self.bad_move_count))
 
@@ -240,6 +266,8 @@ class Board(object):
                     print("Piece currently blocking: {} is: {} in direction: {}".format(blocking_piece, new_blocking_piece, try_direction))
                     self.move_block_recursion(blocking_piece, new_blocking_piece, try_direction)
         print("Leaving while loop, successfully moved: {} out of the way of: {}".format(blocking_piece, current_piece))
+        #addded this return, not sure if it is necessary
+        return
 
 
     def get_open_coords(self, current_piece, needed_direction):
@@ -434,8 +462,6 @@ class Piece(object):
         self.start_h = start_h
         #direction piece is facing
         self.direction = direction
-        #used for list of pieces that are in it's path
-        self.in_path = {}
         #final coordinates for vertical pieces that could be in the way of x
 
 def piece_test():
