@@ -41,7 +41,8 @@ my_list.append({'c':'Right'})
 my_list.append({'a':'Left'})
 print(len(my_list))
 
-print(my_list.pop())
+k = my_list.pop()
+print("k: {} v: {}".format(k.keys(),k.values()))
 print(my_list.pop())
 if len(my_list) > 0:
     print(my_list.pop())

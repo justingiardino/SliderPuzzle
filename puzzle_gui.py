@@ -8,7 +8,7 @@ class Board(object):
         self.show_board = [['.' for x in range(6)] for y in range(6)]
         self.game_over = False
         self.bad_move_count = 0 #need this like a global variable
-        self.current_path_moves = []
+        self.current_path_dict = []
         self.moving_forward = True #set this as false while you are going back through moves
 
         self.load_board()
@@ -18,6 +18,8 @@ class Board(object):
 
     def load_board(self):
         with open('puzzle_layout.txt', 'r') as puzzle_read:
+        #with open('puzzle_layout2.txt', 'r') as puzzle_read:
+
             puzzle_in = puzzle_read.read().splitlines()
         #build board
         start_pieces = {}
@@ -146,46 +148,74 @@ class Board(object):
                 self.move_block_recursion('x', x_block, 'Right')
 
     #recursion function
+    #issue right now: recursion never turns back around to go forward
     def move_block_recursion(self, current_piece, blocking_piece, move_direction):
-
-        bad_move_dict = [] #just bad moves for this current piece
 
         open_coords = self.get_open_coords(current_piece, move_direction)
         v_open = open_coords['v']
         h_open = open_coords['h']
         print("Need position v:{},h:{} open for: {}".format(v_open, h_open, current_piece))
 
-        #START HERE
-        # if self.main_board[blocking_piece].direction == 'v':
-        #     #call the get helpful move function in this block, do direction check in function and get rid of it here, call function once
-        #     direction_list = ['Up', 'Down']
-        # else:
-        #     direction_list = ['Left', 'Right']
-
         direction_list = self.check_helpful_move(current_piece, blocking_piece)
         print("Helpful move(s) by: {}: {}".format(blocking_piece, direction_list))
 
         try_direction = direction_list.pop()#remove entry from direction_list so you don't try it again
 
+        ##This top block might need to be moved into the else statement and then pass open coords(so leave v_open and h_open up here) and direction_list as parameters
+        #that way I can call the recursion function again without resetting the direction_list
         #go through this loop until you can move this piece
         while self.show_board[v_open][h_open] != '.':
 
-            input("Trying to move piece: {} in direction: {} - While loop start, Bad count: {}\n>".format(blocking_piece, try_direction,self.bad_move_count))
+            input("Trying to move piece: {} in direction: {} - While loop start \nBad count: {}, Moving forward: {}\n>".format(blocking_piece, try_direction,self.bad_move_count, self.moving_forward))
             valid_move_list = self.check_move(blocking_piece)
 
+
+            #swapped this one from second check to first, want to make sure it doesn't run away in a direction
+            if self.bad_move_count > 15 and self.moving_forward == True:
+                self.moving_forward = False
+                input("Hit {} \"bad\" moves\n>".format(self.bad_move_count))
+
             #need to make sure you are moving forward
-            if try_direction in valid_move_list and self.moving_forward:
+            elif try_direction in valid_move_list and self.moving_forward:
                 self.move_piece(blocking_piece,try_direction)
                 #need to append this move to list
-                bad_move_dict.append({blocking_piece: try_direction})
+                self.current_path_dict.append({'piece':blocking_piece, 'direction':try_direction})
+                print("Current move dict: {}".format(self.current_path_dict))
                 #bad_move_count = 0 #want to actually increment here
                 self.bad_move_count += 1
                 self.print_board()
 
-            #once you hit 25 bad moves turn around
-            elif self.bad_move_count > 24 and self.moving_forward:
-                self.moving_forward = False
-                input("Need to figure out revert logic, hit 25 \"bad\" moves\n>")
+            #moving backward and this current piece has a valid move, hoping this makes it hit the last else block and then try to go the other direction
+            elif self.moving_forward == False and len(direction_list) > 0:
+                self.moving_forward = True
+                self.bad_move_count -= 1
+                print("Direction list: {}".format(direction_list))
+                print("Made it to moving forward equals false and there is another direction")
+
+            elif self.moving_forward == False:
+                #revert move and return
+                undo_move = self.current_path_dict.pop()
+                self.bad_move_count -= 1
+                undo_piece = undo_move['piece']
+                undo_direction = undo_move['direction']
+                print("Going to undo move for: {}, printing to make sure it's the right piece".format(undo_piece))#may want to actually do a check for this
+                print("Current move dict: {}".format(self.current_path_dict))
+                if undo_direction == 'Left':
+                    self.move_piece(undo_piece,'Right')
+                elif undo_direction == 'Right':
+                    self.move_piece(undo_piece, 'Left')
+                elif undo_direction == 'Up':
+                    self.move_piece(undo_piece, 'Down')
+                elif undo_direction == 'Down':
+                    self.move_piece(undo_piece,'Up')
+                else:
+                    print("Bad direction passed to move backwards")
+
+                self.print_board()
+                input("Just moved piece: {}, now going to return to previous piece\n>".format(undo_piece))
+                #I might want to call recursion again, but if I do  it will reset the direction_list variable
+                #return #doing the return here doesn't return you back to the previous level of the function it gets you back to the first function call
+
 
             #idea: else if moving backward and len(direction_list) is 1 meaning there is another direction you can move
             #   then: pop to get that new direction and call recursion going forward, turn moving forward back on
