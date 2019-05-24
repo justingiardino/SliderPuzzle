@@ -10,17 +10,38 @@ Light Gray  0;37x     White         1;37
 '''
 #use this to print color on mac and regular on windows
 import platform
+import time
 
 class Board(object):
 
     def __init__(self):
-        #color dict goes up to i, shouldn't be more pieces than that
-        #Using ANSI escape codes on Mac
-        print("\n\n " + "-"*31 +"\n| Welcome to the Puzzle Solver! |\n " + "-"*31)
+
+
+        print("\n\nWelcome to the ")
+        print("""
+ _______________________________________
+|     _____               _             |
+|    |  __ \             | |            |
+|    | |__) |   _ _______| | ___        |
+|    |  ___/ | | |_  /_  / |/ _ \       |
+|    | |   | |_| |/ / / /| |  __/       |
+|    |_|    \__,_/___/___|_|\___|       |
+|    _____       _                  _   |
+|   / ____|     | |                | |  |
+|  | (___   ___ | |_   _____ _ __  | |  |
+|   \___ \ / _ \| \ \ / / _ \ '__| | |  |
+|   ____) | (_) | |\ v /  __/ |    |_|  |
+|  |_____/ \___/|_| \_/ \___|_|    (_)  |
+|_______________________________________|
+
+""")
+
         self.debug_mode = 0
         while self.debug_mode != 1 and self.debug_mode != 2:
             self.debug_mode = int(input("Do you want debug mode on?\n1) Yes\n2) No\n>"))
 
+        #color dict goes up to i, shouldn't be more pieces than that
+        #Using ANSI escape codes on Mac
         self.color_dict = {'.':'\033[0m', 'x':'\033[0;31m','a':'\033[0;34m','b':'\033[1;31m','c':'\033[0;36m','d':'\033[1;33m','e':'\033[0;35m','f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
         self.piece_list =[]
         self.main_board = {}
@@ -183,6 +204,7 @@ class Board(object):
 
         self.print_board()
         while not self.game_over:
+            start = time.time()
             print("Trying to move x")
             allowed_moves = self.check_move('x')
             print("x allowed moves: {}".format(allowed_moves))
@@ -209,6 +231,7 @@ class Board(object):
                 else:
                     print("Piece currently blocking x: {} In direction: {}\nCalling Recursion\n>".format(x_block, 'Right'))
                 self.move_block_recursion('x', x_block, 'Right')
+
         print("""
  ______________________________________
 |    _____               _             |
@@ -226,6 +249,9 @@ class Board(object):
 |______________________________________|
 
 """)
+        end = time.time()
+        ms_time = round(((end-start) * 1000),4)
+        print("\nTime for completion: {} ms".format(ms_time))
         print("\nResetting board to step through the solution\n")
         self.reset_show_board_and_start()
         self.print_board()
