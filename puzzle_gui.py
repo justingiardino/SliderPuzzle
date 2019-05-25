@@ -80,8 +80,8 @@ class Board(object):
         self.print_piece_stats()
 
     def load_board(self):
-        with open('puzzle_layout.txt', 'r') as puzzle_read:
-        # with open('puzzle_layout2.txt', 'r') as puzzle_read:
+        #with open('puzzle_layout.txt', 'r') as puzzle_read:
+        with open('puzzle_layout2.txt', 'r') as puzzle_read:
             puzzle_in = puzzle_read.read().splitlines()
 
         #build board
