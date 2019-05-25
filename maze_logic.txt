@@ -1,0 +1,41 @@
+
+
+recursion call with current v and h search points
+
+  while you haven't found the exit
+    set move found equal to false
+    check down
+      if the space is empty and hasn't been visited
+        move found equal true
+        mark space as visited by adding to dictionary
+        call recursion location below
+      elif exit found
+        move found true
+        game over true
+    check up
+      if space below is empty and hasn't been visited
+        move found equal True
+        mark space as visited by adding to dictionary
+        call recursion function on location above
+      elif exit found
+        move found true
+        game over true
+    check right
+      if space to the right is empty and hasn't been visited
+        move found equal True
+        mark space as visited by adding to dictionary
+        call recursion function on location to the right
+      elif exit found
+        move found True
+        game over True
+    check left
+      if space to the left is empty and hasn't been visited
+        move found True
+        mark space as visited by adding to dictionary
+        call recursion function on location to the right
+      elif exit found
+        move found True
+        game over True
+    after all checks, if move not found
+      mark as bad space to not be visited again
+      return to go back to previous coordinates to check for another direction
