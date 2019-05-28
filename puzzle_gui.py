@@ -13,15 +13,19 @@ Light Gray  0;37x     White         1;37
 import platform
 import time
 
+#enable ANSI escape codes on windows
+if platform.system() == 'Windows':
+    import colorama
+    colorama.init()
+
 #issue right now: get stuck in a loop of bad moves, need to fix the bad count logic to go back when a loop is found and try something else
 
 class Board(object):
 
     def __init__(self):
         print("\n\nWelcome to the ")
-        #mac color
-        if platform.system() == 'Darwin':
-            print("""
+
+        print("""
  _______________________________________
 |\033[0;31m     _____               _             \033[0m|
 |\033[0;31m    |  __ \             | |            \033[0m|
@@ -39,32 +43,19 @@ class Board(object):
 
 """)
 #\033[33;5m
-        else:
-            print("""
- _______________________________________
-|     _____               _             |
-|    |  __ \             | |            |
-|    | |__) |   _ _______| | ___        |
-|    |  ___/ | | |_  /_  / |/ _ \       |
-|    | |   | |_| |/ / / /| |  __/       |
-|    |_|    \__,_/___/___|_|\___|       |
-|    _____       _                  _   |
-|   / ____|     | |                | |  |
-|  | (___   ___ | |_   _____ _ __  | |  |
-|   \___ \ / _ \| \ \ / / _ \ '__| | |  |
-|   ____) | (_) | |\ v /  __/ |    |_|  |
-|  |_____/ \___/|_| \_/ \___|_|    (_)  |
-|_______________________________________|
 
-""")
 
         self.debug_mode = 0
         while self.debug_mode != 1 and self.debug_mode != 2:
             self.debug_mode = int(input("Do you want debug mode on?\n1) Yes\n2) No\n>"))
 
         #color dict goes up to i, shouldn't be more pieces than that
-        #Using ANSI escape codes on Mac
-        self.color_dict = {'.':'\033[0m', 'x':'\033[0;31m','a':'\033[0;34m','b':'\033[1;31m','c':'\033[0;36m','d':'\033[1;33m','e':'\033[0;35m','f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
+        #Using ANSI escape codes, if windows a will be green, if mac a will be blue
+        if platform.system() == 'Windows':
+            self.color_dict = {'.':'\033[0m', 'x':'\033[0;31m','a':'\033[0;32m','b':'\033[1;31m','c':'\033[0;36m','d':'\033[1;33m','e':'\033[0;35m','f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
+        else:
+            self.color_dict = {'.':'\033[0m', 'x':'\033[0;31m','a':'\033[0;34m','b':'\033[1;31m','c':'\033[0;36m','d':'\033[1;33m','e':'\033[0;35m','f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
+
         self.piece_list =[]
         self.main_board = {}
         self.undo_move = {}
@@ -171,29 +162,19 @@ class Board(object):
 
 
     def print_board(self):
-        if platform.system() == 'Darwin':
-            #Mac version, shows colors
-            print("   0 1 2 3 4 5 \n :=============:",end='')
-            for v in range(6):
-                print("\n{}| ".format(v),end='')
-                for h in range(6):
-                    curr_piece = self.show_board[v][h]
-                    print("{}{}\033[0m ".format(self.color_dict[curr_piece],curr_piece),end='')
-                #skip the exit wall
-                if v != 2:
-                    print("|",end='')
-            print('\n :=============:')
-        #windows, color characters show up as arrows instead
-        else:
-            print("   0 1 2 3 4 5 \n :=============:",end='')
-            for v in range(6):
-                print("\n{}| ".format(v),end='')
-                for h in range(6):
-                    print("{} ".format(self.show_board[v][h]),end='')
-                #skip the exit wall
-                if v != 2:
-                    print("|",end='')
-            print('\n :=============:')
+
+
+        print("   0 1 2 3 4 5 \n :=============:",end='')
+        for v in range(6):
+            print("\n{}| ".format(v),end='')
+            for h in range(6):
+                curr_piece = self.show_board[v][h]
+                print("{}{}\033[0m ".format(self.color_dict[curr_piece],curr_piece),end='')
+            #skip the exit wall
+            if v != 2:
+                print("|",end='')
+        print('\n :=============:')
+
 
 
     #run this function assuming that move is valid, not doing any boundary or direction checking
@@ -266,8 +247,8 @@ class Board(object):
                 else:
                     print("Piece currently blocking x: {} In direction: {}\nCalling Recursion\n>".format(x_block, 'Right'))
                 self.move_block_recursion('x', x_block, 'Right')
-        if platform.system() == 'Darwin':
-            print("""
+
+        print("""
  _______________________________________
 |\033[0;31m     _____               _             \033[0m|
 |\033[0;31m    |  __ \             | |            \033[0m|
@@ -286,8 +267,6 @@ class Board(object):
 
 
 """)
-        else:
-            print("Puzzle solved!")
         end = time.time()
         ms_time = round(((end-start) * 1000),4)
         print("Time for completion: {} ms".format(ms_time))
