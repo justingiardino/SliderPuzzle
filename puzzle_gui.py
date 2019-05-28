@@ -13,6 +13,8 @@ Light Gray  0;37x     White         1;37
 import platform
 import time
 
+#issue right now: get stuck in a loop of bad moves, need to fix the bad count logic to go back when a loop is found and try something else
+
 class Board(object):
 
     def __init__(self):
@@ -264,8 +266,8 @@ class Board(object):
                 else:
                     print("Piece currently blocking x: {} In direction: {}\nCalling Recursion\n>".format(x_block, 'Right'))
                 self.move_block_recursion('x', x_block, 'Right')
-
-        print("""
+        if platform.system() == 'Darwin':
+            print("""
  _______________________________________
 |\033[0;31m     _____               _             \033[0m|
 |\033[0;31m    |  __ \             | |            \033[0m|
@@ -284,6 +286,8 @@ class Board(object):
 
 
 """)
+        else:
+            print("Puzzle solved!")
         end = time.time()
         ms_time = round(((end-start) * 1000),4)
         print("Time for completion: {} ms".format(ms_time))
@@ -328,7 +332,7 @@ class Board(object):
             #too complex of a move, requires too many extra steps
             # elif self.complex_move > 2 and self.moving_forward == True and self.complex_back == False:
             #complex move will probably have to be raised
-            if self.complex_move > 2 and self.moving_forward == True and self.complex_back == False:
+            if self.complex_move > 3 and self.moving_forward == True and self.complex_back == False:
                 #maybe set moving_forward as backward here
                 self.complex_back = True
                 if self.debug_mode == 1:
@@ -354,8 +358,6 @@ class Board(object):
                 self.print_board()
 
 
-            #moving backward and this current piece has a valid move, hoping this makes it hit the last else block and then try to go the other direction
-            #this doesn't  work exactly as expected
             #only want to change direction when going backwards
             elif len(direction_list) > 0 and self.moving_forward == False:
                 self.moving_forward = True
@@ -374,10 +376,6 @@ class Board(object):
             elif self.complex_back == True and self.complex_move == 0:
                 self.complex_back = False
                 self.moving_forward = True
-
-
-
-
 
             #revert move and return
             elif self.moving_forward == False:
@@ -479,9 +477,7 @@ class Board(object):
         #if there is a boundary blocking you will reach this return statement
         return None
 
-    #check to see if moving piece all the way in a direction would be helpful
-    #add logic for piece
-    #need to add logic to prefer a direction that is closer when there are two directions that it can move - maybe
+    #check to see if moving piece all the way in a direction would be helpful, added logic for piece in same direction
     def check_helpful_move(self, blocked_piece, blocking_piece):
         self.get_path_same_direction(blocking_piece)
         move_return_list = []
@@ -489,74 +485,101 @@ class Board(object):
         if self.main_board[blocked_piece].direction == 'v':
             print("Piece blocking vertical piece is horizontal")
             #can move a max of 4 grids over, skip over offset of 0 since that means no movement
-            if self.main_board[blocking_piece].pieces_in_path == []:
+            if self.main_board[blocking_piece].pieces_in_direction == []:
                 print("Horizontal piece doesn't have any pieces in the same row")
-                for h_offset in range(1,5):
-                    #check right, make sure it is in bounds of 5, do a minus one to get the actual last position of the piece
-                    if (self.main_board[blocking_piece].start_h + self.main_board[blocking_piece].length - 1 + h_offset) < 6:
-                        can_move = True
-                        #get h index of all positions of where the blocking piece could be
-                        for piece_offset in range(self.main_board[blocking_piece].length):
-                            #if that piece is in the same index as the blocked piece start then it cannot be added as a valid direction
-                            if (self.main_board[blocking_piece].start_h + piece_offset + h_offset) == self.main_board[blocked_piece].start_h:
-                                can_move = False
-                        #if you didn't find a piece that matched the start index then it is a valid move
-                        if can_move:
-                            #make sure move hasn't alrady been added
-                            if 'Right' not in move_return_list:
-                                move_return_list.append('Right')
-
-                    #check left, make sure it is in bounds of 0
-                    if (self.main_board[blocking_piece].start_h  - h_offset) > -1:
-                        can_move = True
-                        #get h index of all positions of where the blocking piece could be
-                        for piece_offset in range(self.main_board[blocking_piece].length):
-                            #if that piece is in the same index as the blocked piece start then it cannot be added as a valid direction
-                            if (self.main_board[blocking_piece].start_h + piece_offset - h_offset) == self.main_board[blocked_piece].start_h:
-                                can_move = False
-                        #if you didn't find a piece that matched the start index then it is a valid move
-                        if can_move:
-                            #make sure move hasn't alrady been added
-                            if 'Left' not in move_return_list:
-                                move_return_list.append('Left')
+                h_min = -1
+                h_max = 6
             else:
-                print("Horizontal piece has another piece in its row")
+                print("Horizontal piece has a piece in the same row")
+                #this doesn't actually work like I was hoping, need to check and see if piece can actually move down two, will need a separate section
+                horizontal_block = self.main_board[blocking_piece].pieces_in_direction.pop()
+                #initial piece is above new piece
+                if self.main_board[blocking_piece].start_h < self.main_board[horizontal_block].start_h:
+                    h_min = -1
+                    h_max = 4
+                else:
+                    h_min = 2
+                    h_max = 6
+
+
+            for h_offset in range(1,h_max-1):
+                #check right, make sure it is in bounds o, do a minus one to get the actual last position of the piece
+                if (self.main_board[blocking_piece].start_h + self.main_board[blocking_piece].length - 1 + h_offset) < h_max:
+                    can_move = True
+                    #get h index of all positions of where the blocking piece could be
+                    for piece_offset in range(self.main_board[blocking_piece].length):
+                        #if that piece is in the same index as the blocked piece start then it cannot be added as a valid direction
+                        if (self.main_board[blocking_piece].start_h + piece_offset + h_offset) == self.main_board[blocked_piece].start_h:
+                            can_move = False
+                    #if you didn't find a piece that matched the start index then it is a valid move
+                    if can_move:
+                        #make sure move hasn't alrady been added
+                        if 'Right' not in move_return_list:
+                            move_return_list.append('Right')
+
+                #check left, make sure it is in bounds of 0
+                if (self.main_board[blocking_piece].start_h  - h_offset) > h_min:
+                    can_move = True
+                    #get h index of all positions of where the blocking piece could be
+                    for piece_offset in range(self.main_board[blocking_piece].length):
+                        #if that piece is in the same index as the blocked piece start then it cannot be added as a valid direction
+                        if (self.main_board[blocking_piece].start_h + piece_offset - h_offset) == self.main_board[blocked_piece].start_h:
+                            can_move = False
+                    #if you didn't find a piece that matched the start index then it is a valid move
+                    if can_move:
+                        #make sure move hasn't alrady been added
+                        if 'Left' not in move_return_list:
+                            move_return_list.append('Left')
+
+
 
         #else horizontal
         else:
             print("Piece blocking horizontal piece is  vertical")
             #can move a max of 4 grids over, skip over offset of 0 since that means no movement
-            if self.main_board[blocking_piece].pieces_in_path == []:
+            if self.main_board[blocking_piece].pieces_in_direction == []:
                 print("Vertical piece doesn't have any pieces in the same column")
-                for v_offset in range(1,5):
-                    #check up, make sure it is in bounds of 0
-                    if (self.main_board[blocking_piece].start_v - v_offset) > -1:
-                        can_move = True
-                        #get v index of all positions where the blocking piece could be
-                        for piece_offset in range(self.main_board[blocking_piece].length):
-                            #if that piece is in the same index as the blocked piece start then it cannot be added as a valid direction
-                            if(self.main_board[blocking_piece].start_v + piece_offset - v_offset) == self.main_board[blocked_piece].start_v:
-                                can_move = False
-                        #if you didn't find a piece that matched the start index then it is a valid move
-                        if can_move:
-                            #make sure move hasn't alrady been added
-                            if 'Up' not in move_return_list:
-                                move_return_list.append('Up')
-                    #check Down, make sure it is in bounds of 5, do a minus one to get the actual last position of the piece
-                    if (self.main_board[blocking_piece].start_v + self.main_board[blocking_piece].length - 1 + v_offset) < 6:
-                        can_move = True
-                        #get v index of all positions where the blocking piece could be
-                        for piece_offset in range(self.main_board[blocking_piece].length):
-                            #if that piece is in the same index as the blocked piece start then it cannot be added as a valid direction
-                            if(self.main_board[blocking_piece].start_v + piece_offset + v_offset) == self.main_board[blocked_piece].start_v:
-                                can_move = False
-                        #if you didn't find a piece that matched the start index then it is a valid move
-                        if can_move:
-                            #make sure move hasn't alrady been added
-                            if 'Down' not in move_return_list:
-                                move_return_list.append('Down')
+                v_min = -1
+                v_max = 6
             else:
-                print("Veritcal piece has another piece in its column")
+                print("Vertical piece has a piece in the same column")
+                #this doesn't actually work like I was hoping, need to check and see if piece can actually move down two, will need a separate section
+                vertical_block = self.main_board[blocking_piece].pieces_in_direction.pop()
+                #initial piece is above new piece
+                if self.main_board[blocking_piece].start_v < self.main_board[vertical_block].start_v:
+                    v_min = -1
+                    v_max = 4
+                else:
+                    v_min = 2
+                    v_max = 6
+
+            for v_offset in range(1,v_max-1):
+                #check up, make sure it is in bounds of 0
+                if (self.main_board[blocking_piece].start_v - v_offset) > v_min:
+                    can_move = True
+                    #get v index of all positions where the blocking piece could be
+                    for piece_offset in range(self.main_board[blocking_piece].length):
+                        #if that piece is in the same index as the blocked piece start then it cannot be added as a valid direction
+                        if(self.main_board[blocking_piece].start_v + piece_offset - v_offset) == self.main_board[blocked_piece].start_v:
+                            can_move = False
+                    #if you didn't find a piece that matched the start index then it is a valid move
+                    if can_move:
+                        #make sure move hasn't alrady been added
+                        if 'Up' not in move_return_list:
+                            move_return_list.append('Up')
+                #check Down, make sure it is in bounds of 5, do a minus one to get the actual last position of the piece
+                if (self.main_board[blocking_piece].start_v + self.main_board[blocking_piece].length - 1 + v_offset) < v_max:
+                    can_move = True
+                    #get v index of all positions where the blocking piece could be
+                    for piece_offset in range(self.main_board[blocking_piece].length):
+                        #if that piece is in the same index as the blocked piece start then it cannot be added as a valid direction
+                        if(self.main_board[blocking_piece].start_v + piece_offset + v_offset) == self.main_board[blocked_piece].start_v:
+                            can_move = False
+                    #if you didn't find a piece that matched the start index then it is a valid move
+                    if can_move:
+                        #make sure move hasn't alrady been added
+                        if 'Down' not in move_return_list:
+                            move_return_list.append('Down')
 
 
         return move_return_list
@@ -610,13 +633,13 @@ class Board(object):
             #pieces moving in the same direction
             if self.main_board[check_piece].direction == 'v' and self.main_board[piece].direction == 'v':
                 if self.main_board[check_piece].start_h == self.main_board[piece].start_h and check_piece != piece:
-                    self.main_board[piece].pieces_in_path.append(check_piece)
+                    self.main_board[piece].pieces_in_direction.append(check_piece)
             elif self.main_board[check_piece].direction == 'h' and self.main_board[piece].direction == 'h':
                 if self.main_board[check_piece].start_v == self.main_board[piece].start_v and check_piece != piece:
-                    self.main_board[piece].pieces_in_path.append(check_piece)
+                    self.main_board[piece].pieces_in_direction.append(check_piece)
 
 
-        print("Pieces in same direction for piece: {} : {}".format( piece, self.main_board[piece].pieces_in_path))
+        print("Pieces in same direction for piece: {} : {}".format( piece, self.main_board[piece].pieces_in_direction))
 
 
 class Piece(object):
@@ -633,7 +656,7 @@ class Piece(object):
         self.init_h = init_h
         #direction piece is facing
         self.direction = direction
-        self.pieces_in_path = []
+        self.pieces_in_direction = []
 
 
 if __name__== "__main__":
