@@ -20,6 +20,8 @@ if platform.system() == 'Windows':
 
 #issue right now: get stuck in a loop of bad moves, need to fix the bad count logic to go back when a loop is found and try something else
 
+#can use alt directions to see if there is a better solution
+
 class Board(object):
 
     def __init__(self):
@@ -68,6 +70,7 @@ class Board(object):
         self.bad_move_count = 0 #used when you try to go down a path that is not helpful
         self.current_path_dict = []
         self.moving_forward = True #set this as false while you are going back through moves
+        self.x_final_h = [] #used to keep track of final h spots that x has visited to avoid resetting bad move count
 
         self.load_board()
         self.print_piece_stats()
@@ -134,6 +137,10 @@ class Board(object):
                     self.show_board[self.main_board[piece].start_v+i][self.main_board[piece].start_h] = piece
                     self.start_board[self.main_board[piece].start_v+i][self.main_board[piece].start_h] = piece
                     #print("Wow_v:{}".format(show_board[self.main_board[piece].start_v+i][self.main_board[piece].start_h]))
+
+        #find where x starts, add this to final h visited
+        self.x_final_h.append(self.main_board['x'].start_h)
+
 
 
 
@@ -223,15 +230,27 @@ class Board(object):
             start = time.time()
             print("Trying to move x")
             allowed_moves = self.check_move('x')
-            print("x allowed moves: {}".format(allowed_moves))
+            print("x allowed moves: {}\nBad move count: {}".format(allowed_moves, self.bad_move_count))
             #final position, game over
             if self.main_board['x'].start_h == 4 and self.main_board['x'].start_v == 2:
                 self.game_over = True
             #can move right, closer to final position
             elif 'Right' in allowed_moves:
                 self.move_piece('x', 'Right')
-                self.current_path_dict.append({'piece':'x', 'direction':'Right'})
-                self.bad_move_count = 0
+                self.current_path_dict.append({'piece':'x', 'direction':'Right', 'alt_direction':['None']})
+                if self.main_board['x'].start_h not in self.x_final_h:
+                    if self.debug_mode == 1:
+                        input("This was a helpful move by x, do want to reset bad_move_count\n>")
+                    else:
+                        print("This was a helpful move by x, do want to reset bad_move_count")
+                    self.x_final_h.append(self.main_board['x'].start_h)
+                    self.bad_move_count = 0
+                else:
+                    if self.debug_mode == 1:
+                        input("This was not a helpful move by x, don't want to reset bad_move_count\n>")
+                    else:
+                        print("This was not a helpful move by x, don't want to reset bad_move_count")
+
                 self.print_board()
                 if self.debug_mode == 1:
                     input("Piece: {} moved: {}\nKeep searching?\n>".format('x', 'Right'))
@@ -247,6 +266,7 @@ class Board(object):
                 else:
                     print("Piece currently blocking x: {} In direction: {}\nCalling Recursion\n>".format(x_block, 'Right'))
                 self.move_block_recursion('x', x_block, 'Right')
+
 
         print("""
  _______________________________________
@@ -277,7 +297,7 @@ class Board(object):
 
     #recursion function
     def move_block_recursion(self, current_piece, blocking_piece, move_direction):
-        print("Recursion function called\nComplex move count: {}".format(self.complex_move))
+        print("Recursion function called\nComplex move count: {} Bad move count: {}".format(self.complex_move, self.bad_move_count))
         self.recursion_call_list.append(current_piece)
 
         open_coords = self.get_open_coords(current_piece, move_direction)
@@ -327,8 +347,15 @@ class Board(object):
             elif try_direction in valid_move_list and self.moving_forward:
                 self.complex_back = False
                 self.move_piece(blocking_piece,try_direction)
-                #need to append this move to list
-                self.current_path_dict.append({'piece':blocking_piece, 'direction':try_direction})
+                #check for alt direction, going to reset direction_list for now
+                if len(direction_list) > 0:
+                    alt_temp = direction_list.pop()
+                    direction_list.append(alt_temp)
+                else:
+                    alt_temp = 'None'
+
+                #need to append this move to list, adding extra directions available
+                self.current_path_dict.append({'piece':blocking_piece, 'direction':try_direction, 'alt_direction':[alt_temp]})
                 print("Current move dict: {}".format(self.current_path_dict))
                 #bad_move_count = 0 #want to actually increment here
                 self.bad_move_count += 1
@@ -336,13 +363,25 @@ class Board(object):
                 self.complex_move = 0
                 self.print_board()
 
+            #turn around when you have gone too many bad moves backwards
 
+            #want revert move function that doesn't lose track of each moves direction list when function call returns
             #only want to change direction when going backwards
+            #this is used by complex back and bad move count
             elif len(direction_list) > 0 and self.moving_forward == False:
                 self.moving_forward = True
                 print("Direction list: {}".format(direction_list))
                 print("Made it to moving forward equals false and there is another direction")
                 try_direction = direction_list.pop()
+
+            #when you have too many bad moves and no more directions, go back a level
+            elif self.moving_forward == True and self.bad_move_count > 9:
+                if self.debug_mode == 1:
+                    input("Too many bad moves: {}, going backwards".format(self.bad_move_count))
+                else:
+                    print("Too many bad moves: {}, going backwards".format(self.bad_move_count))
+
+                self.moving_forward = False
 
             #when we need to go to the start of the bad complex move, keep going back until you find where you started
             elif self.complex_back == True and self.complex_move > 1:
@@ -356,13 +395,14 @@ class Board(object):
                 self.complex_back = False
                 self.moving_forward = True
 
-            #revert move and return
+            #revert move and return, this is where I will call the revert move function
+            #This might just work for old style
             elif self.moving_forward == False:
                 #while loop will make sure there isn't another direction moved by the same piece
+                #move this all to the revert function
                 self.undo_move = self.current_path_dict.pop()
                 self.bad_move_count -= 1
                 while self.undo_move['piece'] == blocking_piece:
-
                     undo_piece = self.undo_move['piece']
                     undo_direction = self.undo_move['direction']
                     print("Going to undo move for: {}, printing to make sure it's the right piece".format(undo_piece))#may want to actually do a check for this
@@ -395,6 +435,7 @@ class Board(object):
             else:
                 print("Can't move piece: {} in direction: {}.".format(blocking_piece, try_direction))
 
+                #move this to top of function, that will help with revert function
                 #if there is a wall in that direction it's a bad move, need to to go back
                 new_blocking_piece = self.get_block_in_direction(blocking_piece,try_direction)
                 if new_blocking_piece == None:
@@ -403,17 +444,67 @@ class Board(object):
                 else:
                     print("Piece currently blocking: {} is: {} in direction: {}".format(blocking_piece, new_blocking_piece, try_direction))
                     self.complex_move += 1
+                    #need to get rid of new blocking piece
                     self.move_block_recursion(blocking_piece, new_blocking_piece, try_direction)
         if self.moving_forward == True and self.complex_back == False:
             print("<->Leaving while loop, successfully moved: {} out of the way of: {}".format(blocking_piece, current_piece))
             #going to decrement bad move count since this was a successful move
-            self.bad_move_count -= 2 #minus two because when you move the piece over to its final place, it increments the bad move counter, want to get rid of that and go down one
+            self.bad_move_count -= 1 #minus two because when you move the piece over to its final place, it increments the bad move counter, want to get rid of that and go down one
         else:
             print("<->Leaving while loop, not able to move: {} out of the way of: {}".format(blocking_piece, current_piece))
             self.moving_forward = False
         print("Stop checking for: {}, current recursion call list in order of call: {}".format(current_piece,self.recursion_call_list))
         self.recursion_call_list.pop()
         return
+
+    def revert_move(self):
+        #get piece and direction of bad move
+        self.undo_move = self.current_path_dict.pop()
+        self.bad_move_count -= 1
+        undo_piece = self.undo_move['piece']
+        undo_direction = self.undo_move['direction']
+        undo_alt_direction = self.undo_move['alt_direction']
+
+        if self.debug_mode == 1:
+            input("Undoing last move\nPiece: {} Direction: {}\nAlt Direction: {}\n>".format(undo_piece, undo_direction, undo_alt_direction))
+        else:
+            print("Undoing last move\nPiece: {} Direction: {}\nAlt Direction: {}\n>".format(undo_piece, undo_direction, undo_alt_direction))
+
+        if undo_direction == 'Left':
+            self.move_piece(undo_piece,'Right')
+        elif undo_direction == 'Right':
+            self.move_piece(undo_piece, 'Left')
+        elif undo_direction == 'Up':
+            self.move_piece(undo_piece, 'Down')
+        elif undo_direction == 'Down':
+            self.move_piece(undo_piece,'Up')
+        else:
+            print("Bad direction passed to move backwards")
+        self.complex_move = 0
+        self.print_board()
+        if self.debug_mode == 1:
+            input("Just moved piece: {}, now going to return to previous piece\n>".format(undo_piece))
+        else:
+            print("Just moved piece: {}, now going to return to previous piece\n>".format(undo_piece))
+
+
+        #check to see if next piece (backwards) has another another direction
+        #if it does, call recursion and try to move that direction
+        #if it doesn't, call revert again
+        self.undo_move = self.current_path_dict.pop()
+        self.bad_move_count -= 1
+        undo_piece = self.undo_move['piece']
+        undo_direction = self.undo_move['direction']
+        undo_alt_direction = self.undo_move['alt_direction']
+        if 'None' in undo_alt_direction:
+            self.revert_move()
+        else:
+            #this doesn't seem right
+            undo_block_piece = self.get_block_in_direction(undo_piece, undo_alt_direction)
+            #this will break where I'm at in the first recursion branch
+            self.move_block_recursion(undo_piece, undo_block_piece, undo_alt_direction)
+
+
 
 
     def get_open_coords(self, current_piece, needed_direction):
@@ -619,6 +710,47 @@ class Board(object):
 
 
         print("Pieces in same direction for piece: {} : {}".format( piece, self.main_board[piece].pieces_in_direction))
+
+#pasted this back in, going to use it for reference
+    def revert_move_bad():
+        print("calling revert move")
+        #once list is empty it will exit
+        while current_path_moves:
+            current_move = current_path_moves.pop()
+            if current_move['direction'] == 'Left':
+                print("Reverting piece: {}Bad moves left to undo: {}".format(current_move['piece'],len(current_path_moves)))
+                self.move_piece(current_move['piece'], 'Right')#opposite direction
+                self.print_board()
+                if self.debug_mode == 1:
+                    input("Keep searching?\n>")
+                else:
+                    print("Keep searching?\n>")
+            elif current_move['direction'] == 'Right':
+                print("Reverting piece: {}Bad moves left to undo: {}".format(current_move['piece'],len(current_path_moves)))
+                self.move_piece(current_move['piece'], 'Left')#opposite direction
+                self.print_board()
+                if self.debug_mode == 1:
+                    input("Keep searching?\n>")
+                else:
+                    print("Keep searching?\n>")
+            elif current_move['direction'] == 'Up':
+                print("Reverting piece: {}Bad moves left to undo: {}".format(current_move['piece'],len(current_path_moves)))
+                self.move_piece(current_move['piece'], 'Down')#opposite direction
+                self.print_board()
+                if self.debug_mode == 1:
+                    input("Keep searching?\n>")
+                else:
+                    print("Keep searching?\n>")
+            elif current_move['direction'] == 'Down':
+                print("Reverting piece: {}Bad moves left to undo: {}".format(current_move['piece'],len(current_path_moves)))
+                self.move_piece(current_move['piece'], 'Up')#opposite direction
+                self.print_board()
+                if self.debug_mode == 1:
+                    input("Keep searching?\n>")
+                else:
+                    print("Keep searching?\n>")
+            else:
+                print("Not good - bad revert move. Current piece: {}".format(current_move['piece']))
 
 
 class Piece(object):

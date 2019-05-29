@@ -36,22 +36,30 @@
 #     print('Found right')
 # else:
 #     print('Not found')
-my_list = []
-my_list.append({'c':'Right'})
-my_list.append({'a':'Left'})
-print(len(my_list))
+# my_list = []
+# my_list.append({'c':'Right'})
+# my_list.append({'a':'Left'})
+# print(len(my_list))
+#
+# k = my_list.pop()
+# #this works in spyder but not in anaconda command line
+# print('\033[0;31m dark, \033[1;31m light.\033[0m')
+# print('Checking to make sure color was reset')
+# print(my_list.pop())
+# if len(my_list) > 0:
+#     print(my_list.pop())
+# else:
+#     print("list empty")
+#
+# for i in range(1,5):
+#     print(i)
+#     if i == 3:
+#         break
 
-k = my_list.pop()
-#this works in spyder but not in anaconda command line
-print('\033[0;31m dark, \033[1;31m light.\033[0m')
-print('Checking to make sure color was reset')
-print(my_list.pop())
-if len(my_list) > 0:
-    print(my_list.pop())
-else:
-    print("list empty")
 
-for i in range(1,5):
-    print(i)
-    if i == 3:
-        break
+list1 = []
+list2 = []
+list2.append([])
+list3 = ['Right']
+print(list1)
+print(list2)
