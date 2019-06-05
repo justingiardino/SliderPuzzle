@@ -52,3 +52,56 @@ get open coordinates function with input of current piece and blocking piece
     if blocking piece length is 3
 
   else: - piece is horizontal
+
+
+
+Random idea
+Keep track of current move dict and alternate direction
+When you've reached a bad recursion count(too many bad moves) exit out of current recursion call
+Then look through current move dict for last x move right, this will be where the last recursion loop started,
+revert back to there and start moving forward again 
+Then look for last piece that has an alternate direction, want to try and move that piece that direction
+
+
+
+
+
+#keep track of recursion call count, when I get back to 1,
+
+  !!NEW logic
+recursion call with current piece that is blocked, the blocking piece, and the direction you want to move
+  while x not in game over position
+    if piece can move in the direction you want
+      move that direction
+      return to previous recursion level
+    else piece is blocked
+      set move found equal to false
+      check if blocking piece is horizontal or vertical
+      if vertical
+        #Up
+        if moving the piece up will help but it is blocked
+          mark move found = True
+          call recursion current piece, new blocking piece and new blocking direction
+        elif x is in game over location
+          set game over true to end all while loops
+        #Down
+        if moving the piece down will help but it is blocked
+          mark move found = True
+          call recursion current piece, new blocking piece and new blocking direction
+        elif x is in game over location
+          set game over true to end all while loops
+      else horizontal
+      #Left
+      if moving the piece left will help but it is blocked
+        mark move found = True
+        call recursion current piece, new blocking piece and new blocking direction
+      elif x is in game over location
+        set game over true to end all while loops
+      #Down
+      if moving the piece right will help but it is blocked
+        mark move found = True
+        call recursion current piece, new blocking piece and new blocking direction
+      elif x is in game over location
+        set game over true to end all while loops
+    after all checks, if move not found
+      return to previous recursion call to check for another direction
