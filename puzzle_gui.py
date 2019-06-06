@@ -83,14 +83,17 @@ class Board(object):
         #     puzzle_in = puzzle_read.read().splitlines()
 
         puzzle_choice = 0
-        while puzzle_choice != 1 and puzzle_choice != 2:
-            puzzle_choice = int(input("Which puzzle? (1) or (2) \n>"))
+        while puzzle_choice != 1 and puzzle_choice != 2 and puzzle_choice != 3:
+            puzzle_choice = int(input("Which puzzle? (1), (2), or (3) \n>"))
 
         if puzzle_choice == 1:
             with open('puzzle_layout.txt', 'r') as puzzle_read:
                 puzzle_in = puzzle_read.read().splitlines()
-        else:
+        elif puzzle_choice == 2:
             with open('puzzle_layout2.txt', 'r') as puzzle_read:
+                puzzle_in = puzzle_read.read().splitlines()
+        else:
+            with open('puzzle_layout3.txt', 'r') as puzzle_read:
                 puzzle_in = puzzle_read.read().splitlines()
 
         #build board
@@ -239,8 +242,8 @@ class Board(object):
                     last_x = last_count
                 last_count += 1
 
-            # print("Index of last x: {}".format(last_x))
-            # print("Move for last x: {}".format(self.current_path_dict[last_x]))
+            print("Index of last x: {}".format(last_x))
+            print("Move for last x: {}".format(self.current_path_dict[last_x]))
 
             #find the last position where there is an alt direction, do a minus one because I don't want to take a look at the piece that put bad move count over the top
 
@@ -254,37 +257,41 @@ class Board(object):
             else:
                 print("Index of last alt dir: {}\nMove for last alt dir: {}".format(self.last_alt_dir, self.current_path_dict[self.last_alt_dir]))
 
-            #pop all the bad moves off the list
-            if self.last_alt_dir == 0:
-                while last_count > last_x-1:
-                    pop_piece = self.current_path_dict.pop()
-                    last_count -=1
-                    self.bad_move_count -=1
-                    undo_piece = pop_piece['piece']
-                    undo_direction = pop_piece['direction']
-                    print("Going to undo move for: {}, printing to make sure it's the right piece".format(undo_piece))#may want to actually do a check for this
-                    print("Current move dict: {}".format(self.current_path_dict))
-                    if undo_direction == 'Left':
-                        self.move_piece(undo_piece,'Right')
-                    elif undo_direction == 'Right':
-                        self.move_piece(undo_piece, 'Left')
-                    elif undo_direction == 'Up':
-                        self.move_piece(undo_piece, 'Down')
-                    elif undo_direction == 'Down':
-                        self.move_piece(undo_piece,'Up')
-                    else:
-                        print("Bad direction passed to move backwards")
-                    print(self.current_path_dict)
-                    self.print_board()
-                    if self.debug_mode == 1 or self.debug_mode == 3:
-                        input("Getting rid of move: {} \n>".format(pop_piece))
-                    else:
-                        print("Getting rid of move: {} \n>".format(pop_piece))
+            #pop all the bad moves off the list, not getting all the way back to where the bad x stared? -
+            #is only resetting board to location where alt direction is found, it's not getting to the x move right that it needs
+            # if self.last_alt_dir == 0:
+            while last_count > last_x-1:
+                pop_piece = self.current_path_dict.pop()
+                last_count -=1
+                self.bad_move_count -=1
+                undo_piece = pop_piece['piece']
+                undo_direction = pop_piece['direction']
+                print("Going to undo move for: {}, printing to make sure it's the right piece".format(undo_piece))#may want to actually do a check for this
+                print("Current path dict: {}\nLength of current path dict: {}".format(self.current_path_dict, len(self.current_path_dict)))
+                if undo_direction == 'Left':
+                    self.move_piece(undo_piece,'Right')
+                elif undo_direction == 'Right':
+                    self.move_piece(undo_piece, 'Left')
+                elif undo_direction == 'Up':
+                    self.move_piece(undo_piece, 'Down')
+                elif undo_direction == 'Down':
+                    self.move_piece(undo_piece,'Up')
+                else:
+                    print("Bad direction passed to move backwards")
+                #looks like this move isn't getting popped from the stack
+
+                #print(self.current_path_dict)
+                self.print_board()
+                if self.debug_mode == 1 or self.debug_mode == 3:
+                    input("Getting rid of move: {} \n>".format(pop_piece))
+                else:
+                    print("Getting rid of move: {} \n>".format(pop_piece))
 
 
 
-        if self.debug_mode == 1:
+        if self.debug_mode == 1 or self.debug_mode == 3:
             input("Leaving reset function\n>")
+            self.debug_mode = 1
         else:
             print("Leaving reset function\n>")
         self.print_board()
@@ -308,6 +315,7 @@ class Board(object):
                 else:
                     print("Return to x was true, hit too many bad moves and need to start recursion path over\n>")
                 self.reset_recursion()
+                self.return_to_x = False
             #can move right, closer to final position
             elif 'Right' in allowed_moves:
                 self.move_piece('x', 'Right')
@@ -394,9 +402,9 @@ class Board(object):
 
             #input("Trying to move piece: {} in direction: {} - While loop start \nMoving forward: {}\n>".format(blocking_piece, try_direction, self.moving_forward))
             if self.debug_mode == 1:
-                input("Trying to move piece: {} in direction: {} - While loop start \nBad count: {}, Moving forward: {}\n>".format(blocking_piece, try_direction,self.bad_move_count, self.moving_forward))
+                input("Trying to move piece: {} in direction: {} - While loop start \nBad count: {}, Moving forward: {}\nLength of Current Path Dict: {}\nPosition of last alt dir: {}\n>".format(blocking_piece, try_direction,self.bad_move_count, self.moving_forward, len(self.current_path_dict), self.last_alt_dir))
             else:
-                print("Trying to move piece: {} in direction: {} - While loop start \nBad count: {}, Moving forward: {}\n>".format(blocking_piece, try_direction,self.bad_move_count, self.moving_forward))
+                print("Trying to move piece: {} in direction: {} - While loop start \nBad count: {}, Moving forward: {}\nLength of Current Path Dict: {}\nPosition of last alt dir: {}\n>".format(blocking_piece, try_direction,self.bad_move_count, self.moving_forward, len(self.current_path_dict), self.last_alt_dir))
             print("Current direction_list for piece: {}: {}".format(blocking_piece,direction_list))
             valid_move_list = self.check_move(blocking_piece)
 
@@ -404,6 +412,23 @@ class Board(object):
             # if self.bad_move_count > 15 and self.moving_forward == True:
             #     self.moving_forward = False
             #     input("Hit {} \"bad\" moves\n>".format(self.bad_move_count))
+
+            #check to see if length of current move dict is the same length - meaning current move that hasn't been made yet and there is another direction available
+            #and if it is then try that other direction
+            if self.last_alt_dir != 0 and len(self.current_path_dict) == self.last_alt_dir:
+                print("!*!*!\nFound location that has extra move")
+                if self.debug_mode == 1:
+                    input("Current Piece: {} Current Try Direction: {}\n>".format(blocking_piece, try_direction))
+                else:
+                    print("Current Piece: {} Current Try Direction: {}\n>".format(blocking_piece, try_direction))
+
+                if len(direction_list) == 1:
+                    try_direction = direction_list.pop()
+                    if self.debug_mode == 1:
+                        input("New Try Direction: {}>".format(try_direction))
+                    else:
+                        print("New Try Direction: {}>".format(try_direction))
+
 
             if self.return_to_x == True:
                 print("Going back to start of recursion tree..")

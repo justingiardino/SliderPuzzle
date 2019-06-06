@@ -111,3 +111,32 @@ print("Index of last x: {}".format(last_x))
 print("Move for last x: {}".format(my_dict[last_x]))
 
 print(len(my_dict))
+
+
+
+[{'piece': 'a', 'direction': 'Up', 'blocked_piece': 'x', 'alt_direction': 'None'},
+ {'piece': 'x', 'direction': 'Right', 'blocked_piece': '', 'alt_direction': 'None'},
+ {'piece': 'f', 'direction': 'Down', 'blocked_piece': 'x', 'alt_direction': 'None'},
+ {'piece': 'e', 'direction': 'Right', 'blocked_piece': 'f', 'alt_direction': 'Left'},
+ {'piece': 'e', 'direction': 'Right', 'blocked_piece': 'f', 'alt_direction': 'Left'},
+ {'piece': 'f', 'direction': 'Down', 'blocked_piece': 'x', 'alt_direction': 'None'},
+ {'piece': 'x', 'direction': 'Right', 'blocked_piece': '', 'alt_direction': 'None'},
+ {'piece': 'g', 'direction': 'Down', 'blocked_piece': 'x', 'alt_direction': 'None'},
+ {'piece': 'x', 'direction': 'Left', 'blocked_piece': 'f', 'alt_direction': 'None'},
+ {'piece': 'f', 'direction': 'Up', 'blocked_piece': 'e', 'alt_direction': 'None'},
+ {'piece': 'e', 'direction': 'Left', 'blocked_piece': 'g', 'alt_direction': 'None'},
+ {'piece': 'e', 'direction': 'Left', 'blocked_piece': 'g', 'alt_direction': 'None'},
+ {'piece': 'g', 'direction': 'Down', 'blocked_piece': 'x', 'alt_direction': 'None'},
+ {'piece': 'g', 'direction': 'Up', 'blocked_piece': 'e', 'alt_direction': 'None'},
+ {'piece': 'e', 'direction': 'Right', 'blocked_piece': 'f', 'alt_direction': 'Left'},
+ {'piece': 'e', 'direction': 'Right', 'blocked_piece': 'f', 'alt_direction': 'Left'},
+ {'piece': 'f', 'direction': 'Down', 'blocked_piece': 'x', 'alt_direction': 'None'},
+ {'piece': 'x', 'direction': 'Right', 'blocked_piece': '', 'alt_direction': 'None'},
+ {'piece': 'x', 'direction': 'Left', 'blocked_piece': 'f', 'alt_direction': 'None'},
+ {'piece': 'f', 'direction': 'Up', 'blocked_piece': 'e', 'alt_direction': 'None'},
+ {'piece': 'e', 'direction': 'Left', 'blocked_piece': 'g', 'alt_direction': 'None'},
+ {'piece': 'e', 'direction': 'Left', 'blocked_piece': 'g', 'alt_direction': 'None'},
+ {'piece': 'g', 'direction': 'Down', 'blocked_piece': 'x', 'alt_direction': 'None'},
+ {'piece': 'g', 'direction': 'Up', 'blocked_piece': 'e', 'alt_direction': 'None'},
+ {'piece': 'e', 'direction': 'Right', 'blocked_piece': 'f', 'alt_direction': 'Left'},
+ {'piece': 'e', 'direction': 'Right', 'blocked_piece': 'f', 'alt_direction': 'Left'}]
