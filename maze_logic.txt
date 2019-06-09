@@ -1,5 +1,16 @@
+Come up with logic on how to build vertex set for maze.py
+
+if you are moving a new direction
+  create a new vertex
+elif you have multiple directions open
+  create a new vertex variable
 
 
+
+
+
+
+main maze
 recursion call with current v and h search points
 
   while you haven't found the exit

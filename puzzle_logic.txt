@@ -1,3 +1,8 @@
+finish maze vertex and dijkstra logic, then apply to slide puzzle (brute force move all pieces)
+
+
+
+
 idea: keep track of bad moves(at least 15) that don't help open up a valid move, when that number is reached move pieces back until you get to bad moves equal 0 and then change piece search direction
 
 need: when trying to move make sure piece isn't hitting boundary, if piece is at boundary and it is still blocking x piece, change direction
@@ -59,7 +64,7 @@ Random idea
 Keep track of current move dict and alternate direction
 When you've reached a bad recursion count(too many bad moves) exit out of current recursion call
 Then look through current move dict for last x move right, this will be where the last recursion loop started,
-revert back to there and start moving forward again 
+revert back to there and start moving forward again
 Then look for last piece that has an alternate direction, want to try and move that piece that direction
 
 
