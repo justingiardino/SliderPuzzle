@@ -29,7 +29,7 @@ class Maze(object):
 
         self.game_over = False
         self.prev_dir = 'None'#keep track of last direction
-        self.vertex_dict = {0:{'adj_dir':[]}} # format 'Vertex Label' : set([adjacent vertex list]) # 1 : [2,3]
+        self.vertex_dict = {0:{'adj_dir':{}}} # format 'Vertex Label' : set([adjacent vertex list]) # 1 : [2,3], changing to 'Label' : {vertex1:direction1, vertex2:direction2}
         self.next_vertex_label = 0 #used to increment vertex label count
         self.current_vertex_label = 0 #keep track of which path you are on
         self.prev_vertex_label = 0
@@ -156,7 +156,7 @@ class Maze(object):
         #Redoing logic on adj_dir
         # self.vertex_dict[self.current_vertex_label]['adj_dir'].append(self.next_vertex_label)
         self.current_vertex_label = self.next_vertex_label
-        self.vertex_dict[self.next_vertex_label] = {'adj_dir': [], 'coord_v': v_search, 'coord_h': h_search}
+        self.vertex_dict[self.next_vertex_label] = {'adj_dir': {}, 'coord_v': v_search, 'coord_h': h_search}
 
     #in this function, should I keep track of what directino Im moving in? - Will help for printing solution
     #self.vert_direction = {'vertex_start':{'vertex_end1':'direction1', 'vertex_end2':'direction2'}}
@@ -181,7 +181,7 @@ class Maze(object):
                     #if the current maze val is greater than the current vertex, want to mark this in forward path
                     if int(vertex) < int(current_maze_val):
                         print("Adding to adj_dir list")
-                        self.vertex_dict[vertex]['adj_dir'].append(current_maze_val)
+                        self.vertex_dict[vertex]['adj_dir'][current_maze_val] = 'Up'
                     else:
                         print("Not adding to adj_dir")
                     break
@@ -202,7 +202,7 @@ class Maze(object):
                     #if the current maze val is greater than the current vertex, want to mark this in forward path
                     if int(vertex) < int(current_maze_val):
                         print("Adding to adj_dir list")
-                        self.vertex_dict[vertex]['adj_dir'].append(current_maze_val)
+                        self.vertex_dict[vertex]['adj_dir'][current_maze_val] = 'Down'
                     else:
                         print("Not adding to adj_dir")
                     break
@@ -223,7 +223,7 @@ class Maze(object):
                     #if the current maze val is greater than the current vertex, want to mark this in forward path
                     if int(vertex) < int(current_maze_val):
                         print("Adding to adj_dir list")
-                        self.vertex_dict[vertex]['adj_dir'].append(current_maze_val)
+                        self.vertex_dict[vertex]['adj_dir'][current_maze_val] = 'Left'
                     else:
                         print("Not adding to adj_dir")
                     break
@@ -243,7 +243,7 @@ class Maze(object):
                     #if the current maze val is greater than the current vertex, want to mark this in forward path
                     if int(vertex) < int(current_maze_val):
                         print("Adding to adj_dir list")
-                        self.vertex_dict[vertex]['adj_dir'].append(current_maze_val)
+                        self.vertex_dict[vertex]['adj_dir'][current_maze_val] = 'Right'
                     else:
                         print("Not adding to adj_dir")
                     break
@@ -254,7 +254,9 @@ class Maze(object):
     def build_final_graph(self):
         for vertex in self.vertex_dict.keys():
             self.build_adj_dir(vertex)
-            self.final_graph[vertex] = set(self.vertex_dict[vertex]['adj_dir'])
+            #want to only take the vertices here, not the direction moving - only want the keys
+            print("Current adjacent directions for vertex: {}: {}".format(vertex, self.vertex_dict[vertex]['adj_dir']))
+            self.final_graph[vertex] = set(self.vertex_dict[vertex]['adj_dir'].keys())
         print(self.final_graph)
 
 
