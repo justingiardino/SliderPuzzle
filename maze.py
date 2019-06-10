@@ -90,9 +90,7 @@ class Maze(object):
 
     #going to change color of value if the number is greater than 10
     def print_vertex_maze(self):
-        print("Tens value and color it will be\n" + "-"*25)
-        for temp_color in self.color_dict.keys():
-            print(" "*5 + "{}{}0\'s\033[0m".format(self.color_dict[temp_color], temp_color))
+
         str_list = ['#', 'S', ' ', 'E']
         for v in range(self.v_size):
             for h in range(self.h_size):
@@ -133,8 +131,11 @@ class Maze(object):
         print("Searching for optimal path")
         self.build_final_graph()
         print(self.final_graph)
-        self.solution_list = list(breadth_first_search.dfs_paths(self.final_graph, 0, self.current_vertex_label))
+        self.solution_list = list(breadth_first_search.dfs_paths(self.final_graph, 0, self.current_vertex_label))[0]#get rid of unecessary double list
         print("Solution list: {}".format(self.solution_list))
+        print("Tens value and color it will be\n" + "-"*25)
+        for temp_color in self.color_dict.keys():
+            print(" "*5 + "{}{}0\'s\033[0m".format(self.color_dict[temp_color], temp_color))
         print("Printing vertex maze")
         self.print_vertex_maze()
 
