@@ -1,8 +1,14 @@
 
+for i in range(10):
+    print(i)
+    if i > 5:
+        break
+
+
 direction_list = [[1,0], [-1,0], [0,1], [0, -1]]
 
 for v,h in direction_list:
-    
+
     print("V: {}, H: {}".format(v,h))
 # with open('maze_layout.txt', 'r') as maze_read:
 #     maze_in = maze_read.read().splitlines()

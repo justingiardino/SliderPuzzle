@@ -1,12 +1,4 @@
-graph = {'A': set(['B', 'C']),
-         'B': set(['A', 'D', 'E']),
-         'C': set(['A', 'F']),
-         'D': set(['B']),
-         'E': set(['B', 'F']),
-         'F': set(['C', 'E'])}
-print("\n\n" + "-"*28 + "\nVertex : Adjacent Directions")
-for vertex, direction in graph.items():
-    print("   {}   :   {}".format(vertex, direction))
+
 
 
 # use set.add(Letter) to add to a set
@@ -32,6 +24,18 @@ def dfs_paths(graph, start, goal):
                 stack.append((next, path + [next]))
 
 if __name__ == '__main__':
+
+    graph = {'A': set(['B', 'C']),
+             'B': set(['A', 'D', 'E']),
+             'C': set(['A', 'F']),
+             'D': set(['B']),
+             'E': set(['B', 'F']),
+             'F': set(['C', 'E'])}
+    print("\n\n" + "-"*28 + "\nVertex : Adjacent Directions")
+    for vertex, direction in graph.items():
+        print("   {}   :   {}".format(vertex, direction))
+
+
     multiple_paths = list(dfs_paths(graph, 'A', 'F'))
     print("All paths: {}".format(multiple_paths))
     min_size = 100
