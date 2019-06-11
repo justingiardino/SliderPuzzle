@@ -86,12 +86,54 @@ class Maze(object):
         for vertex in self.vertex_dict.keys():
             v = self.vertex_dict[vertex]['coord_v']
             h = self.vertex_dict[vertex]['coord_h']
-            self.vertex_maze[v][h] = vertex
+            if self.vertex_maze[v][h] != 'S':
+                self.vertex_maze[v][h] = vertex
+
+    def update_vertex_maze(self):
+        v_off_dict = {'Right': 0, 'Left': 0, 'Up': -1, 'Down': 1}
+        h_off_dict = {'Right': 1, 'Left': -1, 'Up': 0, 'Down': 0}
+        dir_icon = {'Right': '>', 'Left': '<', 'Up': '^', 'Down': 'v'}
+        #print("Current vertex dict: \n{}".format(self.vertex_dict))
+        print("Length of solution list: {}".format(len(self.solution_list)))
+        for index, vertex in enumerate(self.solution_list):
+            if index == len(self.solution_list) - 1:
+                break
+            move_dir = self.vertex_dict[vertex]['adj_dir'][self.solution_list[index + 1]]
+            next_vertex = self.solution_list[index + 1]
+            print("Index: {}, Vertex: {}, Next Vertex: {}, Direction: {}".format(index, vertex, next_vertex, move_dir))
+            curr_v = self.vertex_dict[vertex]['coord_v']
+            curr_h = self.vertex_dict[vertex]['coord_h']
+            v_offset = v_off_dict[move_dir]
+            h_offset = h_off_dict[move_dir]
+            curr_icon = dir_icon[move_dir]
+            print("curr_v: {}, curr_h: {}".format(curr_v, curr_h))
+            print("Next v: {}, next h: {}".format(self.vertex_dict[next_vertex]['coord_v'], self.vertex_dict[next_vertex]['coord_h']))
+            #This part isn't quite working
+            new_vertex = False
+            # while curr_v != self.vertex_dict[next_vertex]['coord_v'] or curr_h != self.vertex_dict[next_vertex]['coord_h']:
+            while new_vertex == False:
+            #     print("TEST PLEASE")
+                if self.vertex_maze[curr_v][curr_h] != 'S':
+                    self.vertex_maze[curr_v][curr_h] = curr_icon
+                curr_v += v_offset
+                curr_h += h_offset
+                self.print_vertex_maze()
+                if curr_v == self.vertex_dict[next_vertex]['coord_v'] and curr_h == self.vertex_dict[next_vertex]['coord_h']:
+                    print("Reached new verex")
+                    new_vertex = True
+                input("Next move?\n>")
+
+
+
+
+
+
+
 
     #going to change color of value if the number is greater than 10
     def print_vertex_maze(self):
 
-        str_list = ['#', 'S', ' ', 'E']
+        str_list = ['#', 'S', ' ', 'E','v','^', '<','>']
         for v in range(self.v_size):
             for h in range(self.h_size):
                 curr_val = self.vertex_maze[v][h]
@@ -103,8 +145,7 @@ class Maze(object):
                     #print("Print info: {}".format(print_info))
                     color, vert_number = str(print_info).split('.')
                     print("{}{}\033[0m".format(self.color_dict[color], vert_number),end="")
-                    #else number is greate
-
+                    #else number is greater
             print("")
 
 
@@ -138,6 +179,7 @@ class Maze(object):
             print(" "*5 + "{}{}0\'s\033[0m".format(self.color_dict[temp_color], temp_color))
         print("Printing vertex maze")
         self.print_vertex_maze()
+        self.update_vertex_maze()
 
     #check to see what we need to do with vertex_dict
     def check_vertex(self, v_search, h_search):
@@ -261,7 +303,7 @@ class Maze(object):
         print(self.final_graph)
 
 
-
+    #I think I need to add the exit as a vertex
     def solve_maze(self, v_search, h_search):
         if self.main_maze[v_search][h_search] != 'S':
             self.main_maze[v_search][h_search] = 'O'
