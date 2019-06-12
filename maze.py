@@ -36,6 +36,8 @@ class Maze(object):
         self.final_graph = {}
         self.main_maze = []
         self.vertex_maze = []
+        self.e_coords = {}
+        self.final_e_dir = 'None'
 
         self.load_maze()
         self.find_start()
@@ -89,25 +91,37 @@ class Maze(object):
             if self.vertex_maze[v][h] != 'S':
                 self.vertex_maze[v][h] = vertex
 
+    #used for printing
     def update_vertex_maze(self):
+        input("Starting solution\n>")
         v_off_dict = {'Right': 0, 'Left': 0, 'Up': -1, 'Down': 1}
         h_off_dict = {'Right': 1, 'Left': -1, 'Up': 0, 'Down': 0}
         dir_icon = {'Right': '>', 'Left': '<', 'Up': '^', 'Down': 'v'}
         #print("Current vertex dict: \n{}".format(self.vertex_dict))
         print("Length of solution list: {}".format(len(self.solution_list)))
         for index, vertex in enumerate(self.solution_list):
+
+
             if index == len(self.solution_list) - 1:
-                break
-            move_dir = self.vertex_dict[vertex]['adj_dir'][self.solution_list[index + 1]]
-            next_vertex = self.solution_list[index + 1]
-            print("Index: {}, Vertex: {}, Next Vertex: {}, Direction: {}".format(index, vertex, next_vertex, move_dir))
+                print("Made it to last vertex before exit.")
+                print("Exit is at v: {}, h: {} in direction: {}".format(self.e_coords['v'], self.e_coords['h'], self.final_e_dir))
+                final_v = self.e_coords['v']
+                final_h = self.e_coords['h']
+                move_dir = self.final_e_dir
+            else:
+                move_dir = self.vertex_dict[vertex]['adj_dir'][self.solution_list[index + 1]]
+                next_vertex = self.solution_list[index + 1]
+                print("Index: {}, Vertex: {}, Next Vertex: {}, Direction: {}".format(index, vertex, next_vertex, move_dir))
+                final_v = self.vertex_dict[next_vertex]['coord_v']
+                final_h = self.vertex_dict[next_vertex]['coord_h']
+
             curr_v = self.vertex_dict[vertex]['coord_v']
             curr_h = self.vertex_dict[vertex]['coord_h']
+            curr_icon = dir_icon[move_dir]
             v_offset = v_off_dict[move_dir]
             h_offset = h_off_dict[move_dir]
-            curr_icon = dir_icon[move_dir]
             print("curr_v: {}, curr_h: {}".format(curr_v, curr_h))
-            print("Next v: {}, next h: {}".format(self.vertex_dict[next_vertex]['coord_v'], self.vertex_dict[next_vertex]['coord_h']))
+            print("Next v: {}, next h: {}".format(final_v, final_h))
             #This part isn't quite working
             new_vertex = False
             # while curr_v != self.vertex_dict[next_vertex]['coord_v'] or curr_h != self.vertex_dict[next_vertex]['coord_h']:
@@ -117,18 +131,12 @@ class Maze(object):
                     self.vertex_maze[curr_v][curr_h] = curr_icon
                 curr_v += v_offset
                 curr_h += h_offset
-                self.print_vertex_maze()
-                if curr_v == self.vertex_dict[next_vertex]['coord_v'] and curr_h == self.vertex_dict[next_vertex]['coord_h']:
-                    print("Reached new verex")
+                if curr_v == final_v and curr_h == final_h:
+                    print("Reached new vertex")
                     new_vertex = True
-                input("Next move?\n>")
 
-
-
-
-
-
-
+            self.print_vertex_maze()
+            input("Next move?\n>")
 
     #going to change color of value if the number is greater than 10
     def print_vertex_maze(self):
@@ -201,20 +209,17 @@ class Maze(object):
         self.current_vertex_label = self.next_vertex_label
         self.vertex_dict[self.next_vertex_label] = {'adj_dir': {}, 'coord_v': v_search, 'coord_h': h_search}
 
-    #in this function, should I keep track of what directino Im moving in? - Will help for printing solution
-    #self.vert_direction = {'vertex_start':{'vertex_end1':'direction1', 'vertex_end2':'direction2'}}
-    #start here ^
+    #adding vertices that are in the forward direction of the current vertex
     def build_adj_dir(self, vertex):
         curr_v = self.vertex_dict[vertex]['coord_v']
         curr_h = self.vertex_dict[vertex]['coord_h']
-        #current vertex should always be more than the previous vertex - hopefully
+
         #check vertical direction to see if there is another direction
         #up
         for v_offset in range(1,self.v_size):
             #If we are not at boundary
             if curr_v - v_offset > 0:
                 current_maze_val = self.vertex_maze[curr_v - v_offset][curr_h]
-                #need to eventually replace E with a vertex label
                 if current_maze_val == '#' or current_maze_val == 'E' or current_maze_val == 'S':
                     print("Found wall when searching for piece: {} in direction: {}".format(vertex, 'Up'))
                     break
@@ -256,7 +261,6 @@ class Maze(object):
             #If we are not at boundary
             if curr_h - h_offset > 0:
                 current_maze_val = self.vertex_maze[curr_v][curr_h - h_offset]
-                #need to eventually replace E with a vertex label
                 if current_maze_val == '#' or current_maze_val == 'E':
                     print("Found wall when searching for piece: {} in direction: {}".format(vertex, 'Left'))
                     break
@@ -276,7 +280,6 @@ class Maze(object):
             #If we are not at boundary
             if curr_h + h_offset < self.h_size:
                 current_maze_val = self.vertex_maze[curr_v][curr_h + h_offset]
-                #need to eventually replace E with a vertex label
                 if current_maze_val == '#' or current_maze_val == 'E':
                     print("Found wall when searching for piece: {} in direction: {}".format(vertex, 'Right'))
                     break
@@ -293,7 +296,7 @@ class Maze(object):
 
 
 
-
+    #this is the graph that I pass to breadth first search
     def build_final_graph(self):
         for vertex in self.vertex_dict.keys():
             self.build_adj_dir(vertex)
@@ -303,7 +306,7 @@ class Maze(object):
         print(self.final_graph)
 
 
-    #I think I need to add the exit as a vertex
+    #Need to add logic to check all available directions
     def solve_maze(self, v_search, h_search):
         if self.main_maze[v_search][h_search] != 'S':
             self.main_maze[v_search][h_search] = 'O'
@@ -340,6 +343,9 @@ class Maze(object):
 
                     #if you find exit set game_over = True
                     elif self.main_maze[v_search+1][h_search] == 'E':
+                        self.e_coords['v'] = v_search + 1
+                        self.e_coords['h'] = h_search
+                        self.final_e_dir = 'Down'
                         print("Found Exit below")
                         if self.prev_dir != 'Down':
                             print("New vertex found Down")
@@ -371,6 +377,9 @@ class Maze(object):
 
                     #if you find exit set game_over = True
                     elif self.main_maze[v_search-1][h_search] == 'E':
+                        self.e_coords['v'] = v_search - 1
+                        self.e_coords['h'] = h_search
+                        self.final_e_dir = 'Up'
                         print("Found Exit Above")
                         if self.prev_dir != 'Up':
                             print("New vertex found Up")
@@ -404,6 +413,9 @@ class Maze(object):
 
                     #if you find exit set game_over = True
                     elif self.main_maze[v_search][h_search+1] == 'E':
+                        self.e_coords['v'] = v_search
+                        self.e_coords['h'] = h_search + 1
+                        self.final_e_dir = 'Right'
                         print("Found Exit right")
                         if self.prev_dir != 'Right':
                             print("New vertex found Right")
@@ -435,6 +447,9 @@ class Maze(object):
 
                     #if you find exit set game_over = True
                     elif self.main_maze[v_search][h_search-1] == 'E':
+                        self.e_coords['v'] = v_search
+                        self.e_coords['h'] = h_search - 1
+                        self.final_e_dir = 'Left'
                         print("Found Exit left")
                         if self.prev_dir != 'Left':
                             print("New vertex found Left")
