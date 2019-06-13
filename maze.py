@@ -28,6 +28,7 @@ class Maze(object):
 
 
         self.game_over = False
+        self.second_pass = False #use this when you go back into the solve maze function to check for alternate paths
         self.prev_dir = 'None'#keep track of last direction
         self.vertex_dict = {0:{'adj_dir':{}}} # format 'Vertex Label' : set([adjacent vertex list]) # 1 : [2,3], changing to 'Label' : {vertex1:direction1, vertex2:direction2}
         self.next_vertex_label = 0 #used to increment vertex label count
@@ -101,7 +102,6 @@ class Maze(object):
         print("Length of solution list: {}".format(len(self.solution_list)))
         for index, vertex in enumerate(self.solution_list):
 
-
             if index == len(self.solution_list) - 1:
                 print("Made it to last vertex before exit.")
                 print("Exit is at v: {}, h: {} in direction: {}".format(self.e_coords['v'], self.e_coords['h'], self.final_e_dir))
@@ -156,6 +156,19 @@ class Maze(object):
                     #else number is greater
             print("")
 
+    def search_extra_vertex(self):
+        print("Searching for extra vertices")
+        if self.debug_mode != 1:
+            print("Resetting debug mode so I can search for a new vertex")
+            self.debug_mode = 1
+        for found_vertex in self.vertex_dict.keys():
+            temp_start_v = self.vertex_dict[found_vertex]['coord_v']
+            temp_start_h = self.vertex_dict[found_vertex]['coord_h']
+            print("Current vertex: {}\nStart v: {}, Start h: {}".format(found_vertex, temp_start_v, temp_start_h))
+            print("Calling solve maze and checking for new alternate directions")
+            # self.solve_maze(temp_start_v,temp_start_h) #this didn't work as expected
+            #call solve maze function here?
+
 
     def game_play(self):
         start = time.time()
@@ -164,13 +177,16 @@ class Maze(object):
         end = time.time()
         ms_time = round(((end-start) * 1000),4)
         print("Game over, maze completed!\nTime for completion: {} ms".format(ms_time))
+        self.search_extra_vertex()
+
         print("Current vertex_dict: {}".format(self.vertex_dict))
+
         # self.build_vertex_graph()
         # self.print_vertex_maze()
         # self.build_final_graph()
         self.solve_path()
 
-
+    #this is the vertex section to find the best path
     def solve_path(self):
 
         print("Adding vertex labels to graph")
