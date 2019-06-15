@@ -18,7 +18,16 @@ if platform.system() == 'Windows':
     import colorama
     colorama.init()
 
+#New idea 6/14 - save each puzzle state (ie where each puzzle piece is at) as a "vertex"
+#when you start the puzzle, that should be stored as vertex 0 for start
+#then try moving one alternate piece, that will be state 2
+
+
+
+
 #issue right now: get stuck in a loop of bad moves, need to fix the bad count logic to go back when a loop is found and try something else
+
+
 
 #can use alt directions to see if there is a better solution
 
