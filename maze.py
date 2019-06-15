@@ -56,11 +56,11 @@ class Maze(object):
     def load_maze(self):
         # with open('maze_layout.txt', 'r') as maze_read:
         # with open('maze_layout_no_alt_path.txt', 'r') as maze_read:
-        with open('maze_layout_complex.txt', 'r') as maze_read:
+        # with open('maze_layout_complex.txt', 'r') as maze_read:
         # with open('maze_layout_more_complex.txt', 'r') as maze_read:
         # with open('maze_layout_more_complex2.txt', 'r') as maze_read:
         # with open('maze_layout_another_complex.txt', 'r') as maze_read:
-        # with open('maze_layout_last_complex.txt', 'r') as maze_read:
+        with open('maze_layout_last_complex.txt', 'r') as maze_read:
             maze_in = maze_read.read().splitlines()
         #get board dimensions
         self.v_size = len(maze_in)
@@ -430,11 +430,11 @@ class Maze(object):
             self.solve_maze(v_search + v_off, h_search + h_off)
 
         if self.debug_mode == 1:
-            input("No more moves found at v: {}, h: {}\n>".format(v_search, h_search))
+            input("No more moves found at v: {}, h: {}\nExit in path: {}, exit_v: {}, exit_h: {}\n>".format(v_search, h_search,self.exit_in_path, self.exit_path_coords['v'],self.exit_path_coords['h']))
         else:
            print("No more moves found at v: {}, h: {}".format(v_search, h_search))
 
-        if self.exit_in_path == False and v_search == self.exit_path_coords['v'] and v_search == self.exit_path_coords['h'] == h_search:
+        if self.exit_in_path == False and v_search == self.exit_path_coords['v'] and self.exit_path_coords['h'] == h_search:
             print("Exit in path was false and you are back to where you left the main path. Restting icon")
             self.main_maze[v_search][h_search] = self.exit_path_coords['icon']
             self.exit_in_path = True
