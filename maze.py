@@ -24,19 +24,13 @@ class Maze(object):
         else:
             self.color_dict = {'0':'\033[0m', '1':'\033[0;31m','2':'\033[0;34m','3':'\033[0;37m','4':'\033[0;36m','5':'\033[1;33m','6':'\033[0;35m'}#,'f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
 
-        self.game_over = False#used in old version, not needed anymore
-        self.first_pass = True #use this when you go back into the solve maze function to check for alternate paths
         self.prev_dir = 'None'#keep track of last direction
         self.vertex_dict = {0:{'adj_dir':{}}} # format 'Vertex Label' : set([adjacent vertex list]) # 1 : [2,3], changing to 'Label' : {vertex1:direction1, vertex2:direction2}
         self.next_vertex_label = 0 #used to increment vertex label count
         self.current_vertex_label = 0 #keep track of which path you are on
-        self.prev_vertex_label = 0
         self.final_graph = {}
         self.main_maze = []
         self.vertex_maze = []
-        self.e_coords = {}
-        self.final_e_dir = 'None'
-        self.start_s_dir = 'None'
         self.exit_in_path = False
         self.exit_path_coords = [] #{'v':0, 'h':0}#, 'icon': ' '} #board should never be at 0,0 and I need initial values
         self.exit_path_icons = {}
@@ -45,17 +39,14 @@ class Maze(object):
                                 'Left':{'icon':'<', 'v_offset': 0, 'h_offset': -1},
                                 'Right':{'icon':'>', 'v_offset': 0, 'h_offset': 1}}
 
-        #this was used in old method
-        self.direction_offset = {'^':{'v_off': -1, 'h_off': 0 }, 'v':{'v_off': 1, 'h_off': 0}, '<':{'v_off': 0, 'h_off': -1}, '>':{'v_off': 0, 'h_off': 1}}
-
         self.load_maze()
         self.find_start()
 
-    #function is used
     def load_maze(self):
         # with open('maze_layout.txt', 'r') as maze_read:
         # with open('maze_layout_no_alt_path.txt', 'r') as maze_read:
-        with open('maze_layout_complex.txt', 'r') as maze_read:
+        # with open('maze_layout_complex.txt', 'r') as maze_read:
+        with open('maze_layout_complex_multiple_exit.txt', 'r') as maze_read:
         # with open('maze_layout_more_complex.txt', 'r') as maze_read:
         # with open('maze_layout_more_complex2.txt', 'r') as maze_read:
         # with open('maze_layout_another_complex.txt', 'r') as maze_read:
@@ -70,7 +61,7 @@ class Maze(object):
             self.vertex_maze.append(list(line))
         self.build_blank_found()
 
-    #function is used
+
     def build_blank_found(self):
         self.found_dict = {}
         for v in range(self.v_size):
@@ -79,7 +70,7 @@ class Maze(object):
                 self.found_dict[v][h] = {'found':[]}
         #print("Build Test:{}".format(self.found_dict[0][0]))
 
-    #function is used
+
     def find_start(self):
         for v in range(self.v_size):
             for h in range(self.h_size):
@@ -89,16 +80,14 @@ class Maze(object):
         #update vertex_dict
         self.vertex_dict[0]['coord_v'] = self.start_v
         self.vertex_dict[0]['coord_h'] = self.start_h
-        #print("Starting coordinates:{},{}".format(self.start_v,self.start_h))
 
-    #function is used
     def print_maze(self):
         for v in range(self.v_size):
             for h in range(self.h_size):
                 print(self.main_maze[v][h],end="")
             print("")
 
-    #function is used
+
     #adds vertex labels to vertex maze for printing
     def build_vertex_graph(self):
         for vertex in self.vertex_dict.keys():
@@ -107,8 +96,88 @@ class Maze(object):
             if self.vertex_maze[v][h] != 'S':
                 self.vertex_maze[v][h] = vertex
 
-    #function not used, yet
+
+    #going to change color of value if the number is greater than 10
+    def print_vertex_maze(self):
+        str_list = ['#', 'S', ' ', 'E','v','^', '<','>']
+        for v in range(self.v_size):
+            for h in range(self.h_size):
+                curr_val = self.vertex_maze[v][h]
+                if curr_val in str_list:
+                    print(curr_val,end="")
+                else:
+                    #number less than 10, print it normally
+                    print_info = int(curr_val) / 10
+                    #print("Print info: {}".format(print_info))
+                    color, vert_number = str(print_info).split('.')
+                    print("{}{}\033[0m".format(self.color_dict[color], vert_number),end="")
+                    #else number is greater
+            print("")
+
+    # #main game function
+    def game_play(self):
+        start = time.time()
+        print("Calling new solve maze")
+        self.solve_maze(self.start_v, self.start_h)
+        #self.solve_maze_old(self.start_v, self.start_h)
+        #self.print_maze()
+        end = time.time()
+        ms_time = round(((end-start) * 1000),4)
+        print("Game over, maze completed!\nTime for completion: {} ms".format(ms_time))
+        print("Printing vertex maze for reference")
+        self.print_vertex_maze()
+        #self.search_extra_vertex()
+
+        #print("Current vertex_dict: {}".format(self.vertex_dict))
+
+        self.solve_path()
+
+    #function not used yet
+    #this is the vertex section to find the best path
+    def solve_path(self):
+
+        self.build_final_graph()
+        print("\n{}".format(self.final_graph))
+        breadth_first_search.print_graph(self.final_graph)
+        self.solution_list = list(breadth_first_search.dfs_paths(self.final_graph, 0, 'E'))#get rid of unecessary double list
+        print("All solutions: {}".format(self.solution_list))
+        print("Shortest solution: {}".format(self.solution_list[0]))
+        # print("Tens value and color it will be\n" + "-"*25)
+        # for temp_color in self.color_dict.keys():
+        #     print(" "*5 + "{}{}0\'s\033[0m".format(self.color_dict[temp_color], temp_color))
+        # print("Printing vertex maze")
+        self.print_vertex_maze()
+        #self.update_vertex_maze()
+
+    #function is used
+    #check to see what we need to do with vertex_dict
+    def check_vertex(self, v_search, h_search):
+        print("Next vertex label: {}".format(self.next_vertex_label))
+        print("Current vertex label: {}".format(self.current_vertex_label))
+
+        #check to see if vertex is already at this location
+        for vertex in self.vertex_dict.keys():
+            if self.vertex_dict[vertex]['coord_v'] == v_search and self.vertex_dict[vertex]['coord_h'] == h_search:
+                print("This vertex ({}) already exists\nResetting current vertex label.\nLeaving function.".format(vertex))
+                self.current_vertex_label = vertex
+                return
+
+        print("Leaving for loop, didn't find an existing vertex here. Need to add a new one")
+
+        #Adding new vertex to dict
+        self.next_vertex_label += 1
+        #Adding new vertex to adj_dir of last vertex
+        #Redoing logic on adj_dir
+        # self.vertex_dict[self.current_vertex_label]['adj_dir'].append(self.next_vertex_label)
+        self.vertex_dict[self.current_vertex_label]['adj_dir'][self.next_vertex_label] = self.prev_dir
+        self.current_vertex_label = self.next_vertex_label
+        self.vertex_dict[self.next_vertex_label] = {'adj_dir': {}, 'coord_v': v_search, 'coord_h': h_search}
+        #this is where I want to display the vertex on the graph
+        if self.vertex_maze[v_search][h_search] == ' ':
+            self.vertex_maze[v_search][h_search] = self.current_vertex_label
+
     #used for printing
+    #needs to be modified
     def update_vertex_maze(self):
         input("Starting solution\n>")
         v_off_dict = {'Right': 0, 'Left': 0, 'Up': -1, 'Down': 1}
@@ -151,101 +220,18 @@ class Maze(object):
                     print("Reached new vertex")
                     new_vertex = True
 
-            self.print_vertex_maze()
+            #self.print_vertex_maze()
             input("Next move?\n>")
 
-    #function is used
-    #going to change color of value if the number is greater than 10
-    def print_vertex_maze(self):
-        str_list = ['#', 'S', ' ', 'E','v','^', '<','>']
-        for v in range(self.v_size):
-            for h in range(self.h_size):
-                curr_val = self.vertex_maze[v][h]
-                if curr_val in str_list:
-                    print(curr_val,end="")
-                else:
-                    #number less than 10, print it normally
-                    print_info = int(curr_val) / 10
-                    #print("Print info: {}".format(print_info))
-                    color, vert_number = str(print_info).split('.')
-                    print("{}{}\033[0m".format(self.color_dict[color], vert_number),end="")
-                    #else number is greater
-            print("")
-    #function is used
-    # #main game function
-    def game_play(self):
-        start = time.time()
-        print("Calling new solve maze")
-        self.solve_maze(self.start_v, self.start_h)
-        #self.solve_maze_old(self.start_v, self.start_h)
-        #self.print_maze()
-        end = time.time()
-        ms_time = round(((end-start) * 1000),4)
-        print("Game over, maze completed!\nTime for completion: {} ms".format(ms_time))
-        print("Printing vertex maze for reference")
-        self.print_vertex_maze()
-        #self.search_extra_vertex()
 
-        #print("Current vertex_dict: {}".format(self.vertex_dict))
-
-        #self.solve_path()
-
-    #function not used yet
-    #this is the vertex section to find the best path
-    def solve_path(self):
-
-        print("Adding vertex labels to graph")
-        #Need to call build vertex graph before building final graph
-        self.build_vertex_graph()
-        self.print_vertex_maze()
-        print("Searching for optimal path")
-        self.build_final_graph()
-        print(self.final_graph)
-        self.solution_list = list(breadth_first_search.dfs_paths(self.final_graph, 0, self.current_vertex_label))[0]#get rid of unecessary double list
-        print("Solution list: {}".format(self.solution_list))
-        print("Tens value and color it will be\n" + "-"*25)
-        for temp_color in self.color_dict.keys():
-            print(" "*5 + "{}{}0\'s\033[0m".format(self.color_dict[temp_color], temp_color))
-        print("Printing vertex maze")
-        self.print_vertex_maze()
-        self.update_vertex_maze()
-
-    #function is used
-    #check to see what we need to do with vertex_dict
-    def check_vertex(self, v_search, h_search):
-        print("Next vertex label: {}".format(self.next_vertex_label))
-        print("Current vertex label: {}".format(self.current_vertex_label))
-
-        #check to see if vertex is already at this location
-        for vertex in self.vertex_dict.keys():
-            if self.vertex_dict[vertex]['coord_v'] == v_search and self.vertex_dict[vertex]['coord_h'] == h_search:
-                print("This vertex ({}) already exists\nResetting current vertex label.\nLeaving function.".format(vertex))
-                self.current_vertex_label = vertex
-                return
-
-        print("Leaving for loop, didn't find an existing vertex here. Need to add a new one")
-
-        #Adding new vertex to dict
-        self.next_vertex_label += 1
-        #Adding new vertex to adj_dir of last vertex
-        #Redoing logic on adj_dir
-        # self.vertex_dict[self.current_vertex_label]['adj_dir'].append(self.next_vertex_label)
-        self.vertex_dict[self.current_vertex_label]['adj_dir'][self.next_vertex_label] = self.prev_dir
-        self.current_vertex_label = self.next_vertex_label
-        self.vertex_dict[self.next_vertex_label] = {'adj_dir': {}, 'coord_v': v_search, 'coord_h': h_search}
-
-
-
-
-    #function not used yet
     #this is the graph that I pass to breadth first search
     def build_final_graph(self):
         for vertex in self.vertex_dict.keys():
-            self.build_adj_dir(vertex)
+            #self.build_adj_dir(vertex)
             #want to only take the vertices here, not the direction moving - only want the keys
-            print("Current adjacent directions for vertex: {}: {}".format(vertex, self.vertex_dict[vertex]['adj_dir']))
+            #print("Current adjacent directions for vertex: {}: {}".format(vertex, self.vertex_dict[vertex]['adj_dir']))
             self.final_graph[vertex] = set(self.vertex_dict[vertex]['adj_dir'].keys())
-        print(self.final_graph)
+        #print(self.final_graph)
 
 
     #function is used
@@ -260,7 +246,7 @@ class Maze(object):
         self.print_maze()
         #print("Current vertex list: {}\nCurrently at v: {}, h: {}\nCurrent vertex label: {}".format(self.vertex_dict, v_search, h_search, self.current_vertex_label))
 
-        print("Currently at v: {}, h: {}\nCurrent Vertex List: {}".format(v_search, h_search, self.vertex_dict))
+        print("Currently at v: {}, h: {}\nCurrent Vertex Dict: {}".format(v_search, h_search, self.vertex_dict))
         if self.debug_mode == 1:
             input("Next Step?\n>")
         else:
@@ -306,6 +292,7 @@ class Maze(object):
                     input("Had already found exit, but there is another direction to try.\n>")
                 else:
                     print("Had already found exit, but there is another direction to try.\n>")
+                self.current_vertex_label = self.vertex_maze[v_search][h_search]
                 self.exit_in_path = False
                 self.exit_path_coords.append({'v': v_search, 'h': h_search})#['v'] = v_search
                 #self.exit_path_coords['h'] = h_search
@@ -351,16 +338,23 @@ class Maze(object):
                     input("Found exit, Going back to previous level in recursion\n>")
                 else:
                     print("Found exit, Going back to previous level in recursion\n>")
+                #add to vertex list if it doesn't exist
+                if 'E' not in self.vertex_dict.keys():
+                    self.vertex_dict['E'] = {'adj_dir': {}, 'coord_v': v_search+v_off, 'coord_h': h_search+h_off}
+
+                #add to last vertex's adj_dir
+                self.vertex_dict[self.current_vertex_label]['adj_dir']['E'] = move_dir
+
                 return
 
             #add vertex label to all grid positions for verification
-            if self.vertex_maze[v_search][h_search] == ' ':
-                self.vertex_maze[v_search][h_search] = self.current_vertex_label
-            self.print_vertex_maze()
-            if self.debug_mode == 1:
-                input("Current vertex maze\n>")
-            else:
-                print("Current vertex maze")
+
+
+            # self.print_vertex_maze()
+            # if self.debug_mode == 1:
+            #     input("Current vertex maze\n>")
+            # else:
+            #     print("Current vertex maze")
             #call recursive function and continue moving in that direction
             self.solve_maze(v_search + v_off, h_search + h_off)
 

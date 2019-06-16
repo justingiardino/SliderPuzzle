@@ -11,17 +11,22 @@
 def dfs_paths(graph, start, goal):
     stack = [(start, [start])]
     while stack:
-        print("Current stack: {}".format(stack))
+        # print("Current stack: {}".format(stack))
         (vertex, path) = stack.pop()
-        print("Vertex: {} Path: {}".format(vertex, path))
-        print("Graph[vertex]: {}".format(graph[vertex]))
+        # print("Vertex: {} Path: {}".format(vertex, path))
+        # print("Graph[vertex]: {}".format(graph[vertex]))
         for next in graph[vertex] - set(path):
-            print("Next: {}".format(next))
+            # print("Next: {}".format(next))
             if next == goal:
-                print("Hit yield\nNew path: {}".format(path + [next]))
+                # print("Hit yield\nNew path: {}".format(path + [next]))
                 yield path + [next]
             else:
                 stack.append((next, path + [next]))
+def print_graph(graph):
+    print("\n" + "-"*28 + "\nVertex : Adjacent Directions")
+    for vertex, direction in graph.items():
+        print("   {}   :   {}".format(vertex, direction))
+    print("")
 
 if __name__ == '__main__':
 
@@ -31,9 +36,8 @@ if __name__ == '__main__':
              'D': set(['B']),
              'E': set(['B', 'F']),
              'F': set(['C', 'E'])}
-    print("\n\n" + "-"*28 + "\nVertex : Adjacent Directions")
-    for vertex, direction in graph.items():
-        print("   {}   :   {}".format(vertex, direction))
+
+    print_graph(graph)
 
 
     multiple_paths = list(dfs_paths(graph, 'A', 'F'))
