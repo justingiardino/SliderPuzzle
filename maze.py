@@ -23,7 +23,7 @@ class Maze(object):
             self.color_dict = {'0':'\033[0m', '1':'\033[0;31m','2':'\033[0;32m','3':'\033[0;37m','4':'\033[0;36m','5':'\033[1;33m','6':'\033[0;35m'}#,'f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
         else:
             self.color_dict = {'0':'\033[0m', '1':'\033[0;31m','2':'\033[0;34m','3':'\033[0;37m','4':'\033[0;36m','5':'\033[1;33m','6':'\033[0;35m'}#,'f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
-        self.function_call_list = []
+
         self.game_over = False#used in old version, not needed anymore
         self.first_pass = True #use this when you go back into the solve maze function to check for alternate paths
         self.prev_dir = 'None'#keep track of last direction
@@ -72,8 +72,6 @@ class Maze(object):
 
     #function is used
     def build_blank_found(self):
-        if 'build_blank_found' not in self.function_call_list:
-            self.function_call_list.append('build_blank_found')
         self.found_dict = {}
         for v in range(self.v_size):
             self.found_dict[v] = {}
@@ -83,8 +81,6 @@ class Maze(object):
 
     #function is used
     def find_start(self):
-        if 'find_start' not in self.function_call_list:
-            self.function_call_list.append('find_start')
         for v in range(self.v_size):
             for h in range(self.h_size):
                 if self.main_maze[v][h] == 'S':
@@ -97,8 +93,6 @@ class Maze(object):
 
     #function is used
     def print_maze(self):
-        if 'print_maze' not in self.function_call_list:
-            self.function_call_list.append('print_maze')
         for v in range(self.v_size):
             for h in range(self.h_size):
                 print(self.main_maze[v][h],end="")
@@ -107,8 +101,6 @@ class Maze(object):
     #function is used
     #adds vertex labels to vertex maze for printing
     def build_vertex_graph(self):
-        if 'build_vertex_graph' not in self.function_call_list:
-            self.function_call_list.append('build_vertex_graph')
         for vertex in self.vertex_dict.keys():
             v = self.vertex_dict[vertex]['coord_v']
             h = self.vertex_dict[vertex]['coord_h']
@@ -118,8 +110,6 @@ class Maze(object):
     #function not used, yet
     #used for printing
     def update_vertex_maze(self):
-        if 'update_vertex_maze' not in self.function_call_list:
-            self.function_call_list.append('update_vertex_maze')
         input("Starting solution\n>")
         v_off_dict = {'Right': 0, 'Left': 0, 'Up': -1, 'Down': 1}
         h_off_dict = {'Right': 1, 'Left': -1, 'Up': 0, 'Down': 0}
@@ -167,8 +157,6 @@ class Maze(object):
     #function is used
     #going to change color of value if the number is greater than 10
     def print_vertex_maze(self):
-        if 'print_vertex_maze' not in self.function_call_list:
-            self.function_call_list.append('print_vertex_maze')
         str_list = ['#', 'S', ' ', 'E','v','^', '<','>']
         for v in range(self.v_size):
             for h in range(self.h_size):
@@ -186,8 +174,6 @@ class Maze(object):
     #function is used
     # #main game function
     def game_play(self):
-        if 'game_play' not in self.function_call_list:
-            self.function_call_list.append('game_play')
         start = time.time()
         print("Calling new solve maze")
         self.solve_maze(self.start_v, self.start_h)
@@ -207,8 +193,6 @@ class Maze(object):
     #function not used yet
     #this is the vertex section to find the best path
     def solve_path(self):
-        if 'solve_path' not in self.function_call_list:
-            self.function_call_list.append('solve_path')
 
         print("Adding vertex labels to graph")
         #Need to call build vertex graph before building final graph
@@ -229,8 +213,6 @@ class Maze(object):
     #function is used
     #check to see what we need to do with vertex_dict
     def check_vertex(self, v_search, h_search):
-        if 'check_vertex' not in self.function_call_list:
-            self.function_call_list.append('check_vertex')
         print("Next vertex label: {}".format(self.next_vertex_label))
         print("Current vertex label: {}".format(self.current_vertex_label))
 
@@ -258,8 +240,6 @@ class Maze(object):
     #function not used yet
     #this is the graph that I pass to breadth first search
     def build_final_graph(self):
-        if 'build_final_graph' not in self.function_call_list:
-            self.function_call_list.append('build_final_graph')
         for vertex in self.vertex_dict.keys():
             self.build_adj_dir(vertex)
             #want to only take the vertices here, not the direction moving - only want the keys
@@ -273,8 +253,6 @@ class Maze(object):
     #find all directions that are open and then loop through each of those directions
     #return when no more directions are found
     def solve_maze(self, v_search, h_search):
-        if 'solve_maze' not in self.function_call_list:
-            self.function_call_list.append('solve_maze')
         #don't want to overwrite start
         if self.main_maze[v_search][h_search] != 'S':
             self.main_maze[v_search][h_search] = 'O'
@@ -311,6 +289,10 @@ class Maze(object):
             if self.main_maze[v_search][h_search-1] == ' '  or  self.main_maze[v_search][h_search-1] == 'E':
                 print("Move found to the left")
                 self.found_dict[v_search][h_search]['found'].append('Left')
+
+        if len(self.found_dict[v_search][h_search]['found']) > 1:
+            print("Multiple directions found, need a vertex")
+            self.check_vertex(v_search, h_search)
 
         #continue through this loop until there are no more direction to check for a grid position
         while self.found_dict[v_search][h_search]['found']:
@@ -371,8 +353,8 @@ class Maze(object):
                     print("Found exit, Going back to previous level in recursion\n>")
                 return
 
-            #after checking for new vertex and exit if necessary, update vertex maze with the current vertex - this will help for troubleshooting / verification
-            if self.main_maze[v_search][h_search] != 'S':
+            #add vertex label to all grid positions for verification
+            if self.vertex_maze[v_search][h_search] == ' ':
                 self.vertex_maze[v_search][h_search] = self.current_vertex_label
             self.print_vertex_maze()
             if self.debug_mode == 1:
@@ -404,11 +386,8 @@ class Maze(object):
 
 
 
-    
+
 if __name__ == '__main__':
     m = Maze()
     #m.print_maze()
     m.game_play()
-    print("Functions called:")
-    for temp_func in m.function_call_list:
-        print(temp_func)
