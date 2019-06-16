@@ -15,7 +15,6 @@ class Maze(object):
 
     def __init__(self):
 
-
         self.debug_mode = 0
         while self.debug_mode != 1 and self.debug_mode != 2:
             self.debug_mode = int(input("Do you want debug mode on?\n1) Yes\n2) No\n>"))
@@ -24,10 +23,8 @@ class Maze(object):
             self.color_dict = {'0':'\033[0m', '1':'\033[0;31m','2':'\033[0;32m','3':'\033[0;37m','4':'\033[0;36m','5':'\033[1;33m','6':'\033[0;35m'}#,'f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
         else:
             self.color_dict = {'0':'\033[0m', '1':'\033[0;31m','2':'\033[0;34m','3':'\033[0;37m','4':'\033[0;36m','5':'\033[1;33m','6':'\033[0;35m'}#,'f':'\033[0;37m','g':'\033[1;34m','h':'\033[1;32m','i':'\033[1;36m','j':'\033[1;35m'}
-
-
-
-        self.game_over = False
+        self.function_call_list = []
+        self.game_over = False#used in old version, not needed anymore
         self.first_pass = True #use this when you go back into the solve maze function to check for alternate paths
         self.prev_dir = 'None'#keep track of last direction
         self.vertex_dict = {0:{'adj_dir':{}}} # format 'Vertex Label' : set([adjacent vertex list]) # 1 : [2,3], changing to 'Label' : {vertex1:direction1, vertex2:direction2}
@@ -41,7 +38,8 @@ class Maze(object):
         self.final_e_dir = 'None'
         self.start_s_dir = 'None'
         self.exit_in_path = False
-        self.exit_path_coords = {'v':0, 'h':0, 'icon': ' '} #board should never be at 0,0 and I need initial values
+        self.exit_path_coords = [] #{'v':0, 'h':0}#, 'icon': ' '} #board should never be at 0,0 and I need initial values
+        self.exit_path_icons = {}
         self.direction_dict =  {'Up':{'icon':'^', 'v_offset': -1, 'h_offset': 0},
                                 'Down':{'icon':'v', 'v_offset': 1, 'h_offset': 0},
                                 'Left':{'icon':'<', 'v_offset': 0, 'h_offset': -1},
@@ -53,14 +51,15 @@ class Maze(object):
         self.load_maze()
         self.find_start()
 
+    #function is used
     def load_maze(self):
         # with open('maze_layout.txt', 'r') as maze_read:
         # with open('maze_layout_no_alt_path.txt', 'r') as maze_read:
-        # with open('maze_layout_complex.txt', 'r') as maze_read:
+        with open('maze_layout_complex.txt', 'r') as maze_read:
         # with open('maze_layout_more_complex.txt', 'r') as maze_read:
         # with open('maze_layout_more_complex2.txt', 'r') as maze_read:
         # with open('maze_layout_another_complex.txt', 'r') as maze_read:
-        with open('maze_layout_last_complex.txt', 'r') as maze_read:
+        # with open('maze_layout_last_complex.txt', 'r') as maze_read:
             maze_in = maze_read.read().splitlines()
         #get board dimensions
         self.v_size = len(maze_in)
@@ -71,7 +70,10 @@ class Maze(object):
             self.vertex_maze.append(list(line))
         self.build_blank_found()
 
+    #function is used
     def build_blank_found(self):
+        if 'build_blank_found' not in self.function_call_list:
+            self.function_call_list.append('build_blank_found')
         self.found_dict = {}
         for v in range(self.v_size):
             self.found_dict[v] = {}
@@ -79,7 +81,10 @@ class Maze(object):
                 self.found_dict[v][h] = {'found':[]}
         #print("Build Test:{}".format(self.found_dict[0][0]))
 
+    #function is used
     def find_start(self):
+        if 'find_start' not in self.function_call_list:
+            self.function_call_list.append('find_start')
         for v in range(self.v_size):
             for h in range(self.h_size):
                 if self.main_maze[v][h] == 'S':
@@ -90,21 +95,31 @@ class Maze(object):
         self.vertex_dict[0]['coord_h'] = self.start_h
         #print("Starting coordinates:{},{}".format(self.start_v,self.start_h))
 
+    #function is used
     def print_maze(self):
+        if 'print_maze' not in self.function_call_list:
+            self.function_call_list.append('print_maze')
         for v in range(self.v_size):
             for h in range(self.h_size):
                 print(self.main_maze[v][h],end="")
             print("")
 
+    #function is used
+    #adds vertex labels to vertex maze for printing
     def build_vertex_graph(self):
+        if 'build_vertex_graph' not in self.function_call_list:
+            self.function_call_list.append('build_vertex_graph')
         for vertex in self.vertex_dict.keys():
             v = self.vertex_dict[vertex]['coord_v']
             h = self.vertex_dict[vertex]['coord_h']
             if self.vertex_maze[v][h] != 'S':
                 self.vertex_maze[v][h] = vertex
 
+    #function not used, yet
     #used for printing
     def update_vertex_maze(self):
+        if 'update_vertex_maze' not in self.function_call_list:
+            self.function_call_list.append('update_vertex_maze')
         input("Starting solution\n>")
         v_off_dict = {'Right': 0, 'Left': 0, 'Up': -1, 'Down': 1}
         h_off_dict = {'Right': 1, 'Left': -1, 'Up': 0, 'Down': 0}
@@ -149,9 +164,11 @@ class Maze(object):
             self.print_vertex_maze()
             input("Next move?\n>")
 
+    #function is used
     #going to change color of value if the number is greater than 10
     def print_vertex_maze(self):
-
+        if 'print_vertex_maze' not in self.function_call_list:
+            self.function_call_list.append('print_vertex_maze')
         str_list = ['#', 'S', ' ', 'E','v','^', '<','>']
         for v in range(self.v_size):
             for h in range(self.h_size):
@@ -166,28 +183,11 @@ class Maze(object):
                     print("{}{}\033[0m".format(self.color_dict[color], vert_number),end="")
                     #else number is greater
             print("")
-
-    def search_extra_vertex(self):
-
-
-        print("Searching for extra vertices, setting first_pass equal to False")
-        if self.debug_mode != 1:
-            print("Resetting debug mode so I can search for a new vertex")
-            self.debug_mode = 1
-        self.first_pass = False
-        self.game_over = False
-        input("Calling solve_maze again\n>")
-        self.solve_maze_old(self.start_v, self.start_h)
-    #     for found_vertex in self.vertex_dict.keys():
-    #         temp_start_v = self.vertex_dict[found_vertex]['coord_v']
-    #         temp_start_h = self.vertex_dict[found_vertex]['coord_h']
-    #         print("Current vertex: {}\nStart v: {}, Start h: {}".format(found_vertex, temp_start_v, temp_start_h))
-    #         print("Calling solve maze and checking for new alternate directions")
-    #         # self.solve_maze_old(temp_start_v,temp_start_h) #this didn't work as expected
-    #         #call solve maze function here?
-    #
+    #function is used
     # #main game function
     def game_play(self):
+        if 'game_play' not in self.function_call_list:
+            self.function_call_list.append('game_play')
         start = time.time()
         print("Calling new solve maze")
         self.solve_maze(self.start_v, self.start_h)
@@ -196,17 +196,19 @@ class Maze(object):
         end = time.time()
         ms_time = round(((end-start) * 1000),4)
         print("Game over, maze completed!\nTime for completion: {} ms".format(ms_time))
+        print("Printing vertex maze for reference")
+        self.print_vertex_maze()
         #self.search_extra_vertex()
 
         #print("Current vertex_dict: {}".format(self.vertex_dict))
 
-        # self.build_vertex_graph()
-        # self.print_vertex_maze()
-        # self.build_final_graph()
         #self.solve_path()
 
+    #function not used yet
     #this is the vertex section to find the best path
     def solve_path(self):
+        if 'solve_path' not in self.function_call_list:
+            self.function_call_list.append('solve_path')
 
         print("Adding vertex labels to graph")
         #Need to call build vertex graph before building final graph
@@ -224,8 +226,13 @@ class Maze(object):
         self.print_vertex_maze()
         self.update_vertex_maze()
 
+    #function is used
     #check to see what we need to do with vertex_dict
     def check_vertex(self, v_search, h_search):
+        if 'check_vertex' not in self.function_call_list:
+            self.function_call_list.append('check_vertex')
+        print("Next vertex label: {}".format(self.next_vertex_label))
+        print("Current vertex label: {}".format(self.current_vertex_label))
 
         #check to see if vertex is already at this location
         for vertex in self.vertex_dict.keys():
@@ -241,98 +248,18 @@ class Maze(object):
         #Adding new vertex to adj_dir of last vertex
         #Redoing logic on adj_dir
         # self.vertex_dict[self.current_vertex_label]['adj_dir'].append(self.next_vertex_label)
+        self.vertex_dict[self.current_vertex_label]['adj_dir'][self.next_vertex_label] = self.prev_dir
         self.current_vertex_label = self.next_vertex_label
         self.vertex_dict[self.next_vertex_label] = {'adj_dir': {}, 'coord_v': v_search, 'coord_h': h_search}
 
-    #adding vertices that are in the forward direction of the current vertex
-    def build_adj_dir(self, vertex):
-        curr_v = self.vertex_dict[vertex]['coord_v']
-        curr_h = self.vertex_dict[vertex]['coord_h']
-
-        #check vertical direction to see if there is another direction
-        #up
-        for v_offset in range(1,self.v_size):
-            #If we are not at boundary
-            if curr_v - v_offset > 0:
-                current_maze_val = self.vertex_maze[curr_v - v_offset][curr_h]
-                if current_maze_val == '#' or current_maze_val == 'E' or current_maze_val == 'S':
-                    print("Found wall when searching for piece: {} in direction: {}".format(vertex, 'Up'))
-                    break
-
-                elif current_maze_val != ' ':
-                    print("Found vertex: {} when searching for piece: {} in direction: {}".format(current_maze_val, vertex, 'Up'))
-                    #if the current maze val is greater than the current vertex, want to mark this in forward path
-                    if int(vertex) < int(current_maze_val):
-                        print("Adding to adj_dir list")
-                        self.vertex_dict[vertex]['adj_dir'][current_maze_val] = 'Up'
-                    else:
-                        print("Not adding to adj_dir")
-                    break
-                #else nothing
-
-        #down
-        for v_offset in range(1,self.v_size):
-            #If we are not at boundary
-            if curr_v + v_offset < self.v_size:
-                current_maze_val = self.vertex_maze[curr_v + v_offset][curr_h]
-                #need to eventually replace E with a vertex label
-                if current_maze_val == '#' or current_maze_val == 'E':
-                    print("Found wall when searching for piece: {} in direction: {}".format(vertex, 'Down'))
-                    break
-
-                elif current_maze_val != ' ':
-                    print("Found vertex: {} when searching for piece: {} in direction: {}".format(current_maze_val, vertex, 'Down'))
-                    #if the current maze val is greater than the current vertex, want to mark this in forward path
-                    if int(vertex) < int(current_maze_val):
-                        print("Adding to adj_dir list")
-                        self.vertex_dict[vertex]['adj_dir'][current_maze_val] = 'Down'
-                    else:
-                        print("Not adding to adj_dir")
-                    break
-
-        #horizontal
-        #left
-        for h_offset in range(1,self.h_size):
-            #If we are not at boundary
-            if curr_h - h_offset > 0:
-                current_maze_val = self.vertex_maze[curr_v][curr_h - h_offset]
-                if current_maze_val == '#' or current_maze_val == 'E':
-                    print("Found wall when searching for piece: {} in direction: {}".format(vertex, 'Left'))
-                    break
-
-                elif current_maze_val != ' ':
-                    print("Found vertex: {} when searching for piece: {} in direction: {}".format(current_maze_val, vertex, 'Left'))
-                    #if the current maze val is greater than the current vertex, want to mark this in forward path
-                    if int(vertex) < int(current_maze_val):
-                        print("Adding to adj_dir list")
-                        self.vertex_dict[vertex]['adj_dir'][current_maze_val] = 'Left'
-                    else:
-                        print("Not adding to adj_dir")
-                    break
-
-        #right
-        for h_offset in range(1,self.h_size):
-            #If we are not at boundary
-            if curr_h + h_offset < self.h_size:
-                current_maze_val = self.vertex_maze[curr_v][curr_h + h_offset]
-                if current_maze_val == '#' or current_maze_val == 'E':
-                    print("Found wall when searching for piece: {} in direction: {}".format(vertex, 'Right'))
-                    break
-
-                elif current_maze_val != ' ':
-                    print("Found vertex: {} when searching for piece: {} in direction: {}".format(current_maze_val, vertex, 'Right'))
-                    #if the current maze val is greater than the current vertex, want to mark this in forward path
-                    if int(vertex) < int(current_maze_val):
-                        print("Adding to adj_dir list")
-                        self.vertex_dict[vertex]['adj_dir'][current_maze_val] = 'Right'
-                    else:
-                        print("Not adding to adj_dir")
-                    break
 
 
 
+    #function not used yet
     #this is the graph that I pass to breadth first search
     def build_final_graph(self):
+        if 'build_final_graph' not in self.function_call_list:
+            self.function_call_list.append('build_final_graph')
         for vertex in self.vertex_dict.keys():
             self.build_adj_dir(vertex)
             #want to only take the vertices here, not the direction moving - only want the keys
@@ -341,40 +268,35 @@ class Maze(object):
         print(self.final_graph)
 
 
-
+    #function is used
     #new method of solving maze
-    #instead of calling solve maze on all directions, find all directions that are open and then loop through each of those Directions
-    #checks all paths, but overwrites start and exit
-    #want the whole program to quit once it finds the start again
+    #find all directions that are open and then loop through each of those directions
+    #return when no more directions are found
     def solve_maze(self, v_search, h_search):
-
-        #if the current location is not the start, mark with an O
+        if 'solve_maze' not in self.function_call_list:
+            self.function_call_list.append('solve_maze')
+        #don't want to overwrite start
         if self.main_maze[v_search][h_search] != 'S':
             self.main_maze[v_search][h_search] = 'O'
 
         self.print_maze()
         #print("Current vertex list: {}\nCurrently at v: {}, h: {}\nCurrent vertex label: {}".format(self.vertex_dict, v_search, h_search, self.current_vertex_label))
-        print("Currently at v: {}, h: {}".format(v_search, h_search))
+
+        print("Currently at v: {}, h: {}\nCurrent Vertex List: {}".format(v_search, h_search, self.vertex_dict))
         if self.debug_mode == 1:
             input("Next Step?\n>")
         else:
             print("Next Step?\n>")
 
-        #eventually want this to not have the game_over check, if I find E I need to create that as the final vertex
-        #and then get rid of game_over check
-        # while not self.game_over and not self.found_dict[v_search][h_search]['found']:
-            #move_found = False #if you don't find a move, need to return a level in recursion
-            #won't need this, if the found dictionary is still empty then you didn't find a move (if my_dict[1][2]['found'] == ['']) means there was no move there
         #Check down
         if v_search < self.v_size-2:
-            #if space below is empty and hasn't been visited in that direction - got rid of second half, not sure if it's necessary
-            if self.main_maze[v_search+1][h_search] == ' ' or  self.main_maze[v_search+1][h_search] == 'E':# and 'Down' not in self.found_dict[v_search][h_search]['found']:
+            if self.main_maze[v_search+1][h_search] == ' ' or  self.main_maze[v_search+1][h_search] == 'E':
                 print("Move found below")
                 self.found_dict[v_search][h_search]['found'].append('Down')
 
         #check up
         if v_search > 1:
-            if self.main_maze[v_search-1][h_search] == ' ' or  self.main_maze[v_search-1][h_search] == 'E': # and 'Up' not in self.found_dict[v_search][h_search]['found']:
+            if self.main_maze[v_search-1][h_search] == ' ' or  self.main_maze[v_search-1][h_search] == 'E':
                 print("Move found above")
                 self.found_dict[v_search][h_search]['found'].append('Up')
 
@@ -390,17 +312,25 @@ class Maze(object):
                 print("Move found to the left")
                 self.found_dict[v_search][h_search]['found'].append('Left')
 
-            #need to figure out logic on how to force the program to check all available directions on a vertex
+        #continue through this loop until there are no more direction to check for a grid position
         while self.found_dict[v_search][h_search]['found']:
+
+            #if you make it back to the top of this loop meaning there is another direction
+            #and if you have already found an exit path
+            #want to branch off of the existing exit path and try new direction
+            #not sure what would happen if there were multiple exit paths
             if self.exit_in_path == True:
                 if self.debug_mode == 1:
                     input("Had already found exit, but there is another direction to try.\n>")
                 else:
                     print("Had already found exit, but there is another direction to try.\n>")
                 self.exit_in_path = False
-                self.exit_path_coords['v'] = v_search
-                self.exit_path_coords['h'] = h_search
-                self.exit_path_coords['icon'] = self.main_maze[v_search][h_search]
+                self.exit_path_coords.append({'v': v_search, 'h': h_search})#['v'] = v_search
+                #self.exit_path_coords['h'] = h_search
+                #create dictionary for icon at that location
+                self.exit_path_icons[v_search] = {}
+                self.exit_path_icons[v_search][h_search] = self.main_maze[v_search][h_search]
+                #self.exit_path_coords['icon'] =
 
             if self.debug_mode == 1:
                 input("Move(s) found at v: {}, h: {} are:\n{}\n>".format(v_search, h_search, self.found_dict[v_search][h_search]['found']))
@@ -409,15 +339,29 @@ class Maze(object):
 
             #start move process
             move_dir = self.found_dict[v_search][h_search]['found'].pop()
+
             #change icon to direction if not the start piece, as long as piece isn't S
             if self.main_maze[v_search][h_search] != 'S':
                 self.main_maze[v_search][h_search] = self.direction_dict[move_dir]['icon']
 
+            #else if is the S position and the prev dir hasn't been set yet, need to set it
+            elif self.prev_dir == 'None':
+                print("Currently at the start, but have not set a previous direction, setting now")
+                self.prev_dir = move_dir
 
-            #call recursive function and continue moving in that direction
+
             v_off = self.direction_dict[move_dir]['v_offset']
             h_off = self.direction_dict[move_dir]['h_offset']
 
+            #this is where I want to check for a new verex
+            if move_dir != self.prev_dir:
+                print("Changing direction, checking to see if a new vertex is needed")
+
+                self.check_vertex(v_search, h_search) #issue here when there are multiple directions but the first one it tries is the same direction
+                self.prev_dir = move_dir
+
+
+            #if the next move would be the exit, return instead of calling recursion again
             if self.main_maze[v_search + v_off][h_search + h_off] == 'E':
                 self.print_maze()
                 self.exit_in_path = True
@@ -427,22 +371,32 @@ class Maze(object):
                     print("Found exit, Going back to previous level in recursion\n>")
                 return
 
+            #after checking for new vertex and exit if necessary, update vertex maze with the current vertex - this will help for troubleshooting / verification
+            if self.main_maze[v_search][h_search] != 'S':
+                self.vertex_maze[v_search][h_search] = self.current_vertex_label
+            self.print_vertex_maze()
+            if self.debug_mode == 1:
+                input("Current vertex maze\n>")
+            else:
+                print("Current vertex maze")
+            #call recursive function and continue moving in that direction
             self.solve_maze(v_search + v_off, h_search + h_off)
 
+        #leaving while loop for directions found
         if self.debug_mode == 1:
-            input("No more moves found at v: {}, h: {}\nExit in path: {}, exit_v: {}, exit_h: {}\n>".format(v_search, h_search,self.exit_in_path, self.exit_path_coords['v'],self.exit_path_coords['h']))
+            input("No more moves found at v: {}, h: {}\nExit in path: {}, Exit path coords: {}\n>".format(v_search, h_search,self.exit_in_path, self.exit_path_coords))
         else:
            print("No more moves found at v: {}, h: {}".format(v_search, h_search))
 
-        if self.exit_in_path == False and v_search == self.exit_path_coords['v'] and self.exit_path_coords['h'] == h_search:
+        #when you are looping back to check all available paths after finding the exit
+        #this will catch where you broke off from the main path
+        if self.exit_in_path == False and {'v':v_search, 'h':h_search} in self.exit_path_coords:#v_search == self.exit_path_coords['v'] and self.exit_path_coords['h'] == h_search:
             print("Exit in path was false and you are back to where you left the main path. Restting icon")
-            self.main_maze[v_search][h_search] = self.exit_path_coords['icon']
+            self.main_maze[v_search][h_search] = self.exit_path_icons[v_search][h_search]
             self.exit_in_path = True
 
 
-        #this is where I'll need the game over check, for now just setting all places where you can't move as an X.
-        #when you find E, this ends up marking the path as bad while it looks for a new direction
-        #added exit in path
+        #bad location, mark as do not check
         if self.main_maze[v_search][h_search] != 'S' and self.exit_in_path == False:
             self.main_maze[v_search][h_search] = 'X'
 
@@ -450,209 +404,11 @@ class Maze(object):
 
 
 
-    ##OLD METHOD OF SOLVING MAZE
-    #Need to add logic to check all available directions
-    #Need to keep better track of current vertex label to help check all available directions
-    def solve_maze_old(self, v_search, h_search):
-        if self.first_pass == True:
-            if self.main_maze[v_search][h_search] != 'S':
-                self.main_maze[v_search][h_search] = 'O'
-        self.print_maze()
-        print("Current vertex list: {}\nCurrently at v: {}, h: {}\nCurrent vertex label: {}".format(self.vertex_dict, v_search, h_search, self.current_vertex_label))
-        if self.debug_mode == 1:
-            input("Next Step?\n>")
-        else:
-            print("Next Step?\n>")
-        #add vertex to set
-        # self.next_vertex_label += 1
-        # self.vertex_dict[0].add(self.next_vertex_label)
-        while not self.game_over:
-            #print("Game Over: {}".format(self.game_over))
-            move_found = False #Use this to see when you don't have a move available and need to go back
-            #had to add game over checks to each direction
-            if not self.game_over:
-                #Check down, wall always at least one space away
-                if v_search < self.v_size-2:
-                    #if space below is empty and hasn't been visited in that direction
-                    if self.main_maze[v_search+1][h_search] == ' ' and 'Down' not in self.found_dict[v_search][h_search]['found']:
-                        print("Opening found below")
-                        if self.prev_dir != 'Down':
-                            print("New vertex found Down")
-                            self.prev_dir = 'Down'
-                            self.check_vertex(v_search, h_search)
-                        move_found = True
-                        self.found_dict[v_search][h_search]['found'].append('Down')
-                        #change icon to direction if not the start piece, as long as piece isn't S
-                        if self.main_maze[v_search][h_search] != 'S':
-                            self.main_maze[v_search][h_search] = 'v'
-                        else:
-                            self.start_s_dir = 'v' #this is used on the second pass of the graph
-
-
-                        self.solve_maze_old(v_search+1,h_search)
-
-                    #if you find exit set game_over = True
-                    elif self.main_maze[v_search+1][h_search] == 'E':
-                        self.e_coords['v'] = v_search + 1
-                        self.e_coords['h'] = h_search
-                        self.final_e_dir = 'Down'
-                        print("Found Exit below")
-                        if self.prev_dir != 'Down':
-                            print("New vertex found Down")
-                            self.prev_dir = 'Down'
-                            self.check_vertex(v_search, h_search)
-                        move_found = True
-                        self.found_dict[v_search][h_search]['found'].append('Down')
-                        #change icon to direction
-                        if self.main_maze[v_search][h_search] != 'S':
-                            self.main_maze[v_search][h_search] = 'v'
-                        self.game_over = True
-
-            if not self.game_over:
-                #up, 1 because 0 will always be a wall
-                if v_search > 1:
-                    #If space above is empty and hasn't been visited
-                    if self.main_maze[v_search-1][h_search] == ' ' and 'Up' not in self.found_dict[v_search][h_search]['found']:
-                        print("Opening found above")
-                        if self.prev_dir != 'Up':
-                            print("New vertex found Up")
-                            self.prev_dir = 'Up'
-                            self.check_vertex(v_search, h_search)
-                        move_found = True
-                        self.found_dict[v_search][h_search]['found'].append('Up')
-                        #change icon to direction
-                        if self.main_maze[v_search][h_search] != 'S':
-                            self.main_maze[v_search][h_search] = '^'
-                        else:
-                            self.start_s_dir = '^' #this is used on the second pass of the graph
-                        self.solve_maze_old(v_search-1,h_search)
-
-                    #if you find exit set game_over = True
-                    elif self.main_maze[v_search-1][h_search] == 'E':
-                        self.e_coords['v'] = v_search - 1
-                        self.e_coords['h'] = h_search
-                        self.final_e_dir = 'Up'
-                        print("Found Exit Above")
-                        if self.prev_dir != 'Up':
-                            print("New vertex found Up")
-                            self.prev_dir = 'Up'
-                            self.check_vertex(v_search, h_search)
-                        move_found = True
-                        self.found_dict[v_search][h_search]['found'].append('Up')
-                        #change icon to direction
-                        if self.main_maze[v_search][h_search] != 'S':
-                            self.main_maze[v_search][h_search] = '^'
-                        self.game_over = True
-                        return
-
-
-            if not self.game_over:
-                #right
-                if h_search < self.h_size-2:
-                    #if space to right is open and hasn't been visited yet
-                    if self.main_maze[v_search][h_search+1] == ' ' and 'Right' not in self.found_dict[v_search][h_search]['found']:
-                        print("Opening found to the right")
-                        if self.prev_dir != 'Right':
-                            print("New vertex found Right")
-                            self.prev_dir = 'Right'
-                            self.check_vertex(v_search, h_search)
-                        move_found = True
-                        self.found_dict[v_search][h_search]['found'].append('Right')
-                        #change icon to direction
-                        if self.main_maze[v_search][h_search] != 'S':
-                            self.main_maze[v_search][h_search] = '>'
-                        else:
-                            self.start_s_dir = '>' #this is used on the second pass of the graph
-                        self.solve_maze_old(v_search,h_search+1)
-
-                    #if you find exit set game_over = True
-                    elif self.main_maze[v_search][h_search+1] == 'E':
-                        self.e_coords['v'] = v_search
-                        self.e_coords['h'] = h_search + 1
-                        self.final_e_dir = 'Right'
-                        print("Found Exit right")
-                        if self.prev_dir != 'Right':
-                            print("New vertex found Right")
-                            self.prev_dir = 'Right'
-                            self.check_vertex(v_search, h_search)
-                        move_found = True
-                        self.found_dict[v_search][h_search]['found'].append('Right')
-                        #change icon to direction
-                        if self.main_maze[v_search][h_search] != 'S':
-                            self.main_maze[v_search][h_search] = '>'
-                        self.game_over = True
-
-            if not self.game_over:
-                #left
-                if h_search > 1:
-                    #if space to left is open and hasn't been visited yet
-                    if self.main_maze[v_search][h_search-1] == ' ' and 'Left' not in self.found_dict[v_search][h_search]['found']:
-                        print("Opening found to the left")
-                        if self.prev_dir != 'Left':
-                            print("New vertex found Left")
-                            self.prev_dir = 'Left'
-                            self.check_vertex(v_search, h_search)
-                        move_found = True
-                        self.found_dict[v_search][h_search]['found'].append('Left')
-                        #change icon to direction
-                        if self.main_maze[v_search][h_search] != 'S':
-                            self.main_maze[v_search][h_search] = '<'
-                        else:
-                            self.start_s_dir = '<' #this is used on the second pass of the graph
-                        self.solve_maze_old(v_search,h_search-1)
-
-                    #if you find exit set game_over = True
-                    elif self.main_maze[v_search][h_search-1] == 'E':
-                        self.e_coords['v'] = v_search
-                        self.e_coords['h'] = h_search - 1
-                        self.final_e_dir = 'Left'
-                        print("Found Exit left")
-                        if self.prev_dir != 'Left':
-                            print("New vertex found Left")
-                            self.prev_dir = 'Left'
-                            self.check_vertex(v_search, h_search)
-                        move_found = True
-                        self.found_dict[v_search][h_search]['found'].append('Left')
-                        #change icon to direction
-                        if self.main_maze[v_search][h_search] != 'S':
-                            self.main_maze[v_search][h_search] = '<'
-                        self.game_over = True
-
-
-
-            if not move_found:
-                move_found = False
-                print("Move not found")
-
-
-                #if you are on the first pass through the maze and there wasn't another move found, return and go back to the previous level
-                if self.first_pass == True:
-                    self.main_maze[v_search][h_search] = 'X'
-
-                    #reset found for this block
-                    self.found_dict[v_search][h_search]['found'] = ['']
-                    self.print_maze()
-
-                    if self.debug_mode == 1:
-                        input("Next step(Move not found)?\n>")
-                    else:
-                        print("Next step(Move not found)?\n>")
-                    #go back to previous piece and search a direction that wasn't found already or continue going back
-                    return
-                #otherwise if you are not on the first pass and there still wasn't an empty space found, then need to move on to the next correct space and look for another move
-                else:
-                    move_dir = self.main_maze[v_search][h_search]
-                    if move_dir == 'S':
-                        move_dir = self.start_s_dir
-                    print("Currently on second pass, did not find an alternate path, direction I should move is: {}".format(move_dir))
-                    input("Going to offset v: {}, h: {}\n>".format(self.direction_offset[move_dir]['v_off'], self.direction_offset[move_dir]['h_off']))
-                    self.solve_maze_old(v_search + self.direction_offset[move_dir]['v_off'], h_search + self.direction_offset[move_dir]['h_off'])
-            #not sure if this is needed
-            if self.game_over:
-                break
-
-
+    
 if __name__ == '__main__':
     m = Maze()
     #m.print_maze()
     m.game_play()
+    print("Functions called:")
+    for temp_func in m.function_call_list:
+        print(temp_func)
