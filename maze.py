@@ -43,14 +43,14 @@ class Maze(object):
         self.find_start()
 
     def load_maze(self):
-        # with open('maze_layout.txt', 'r') as maze_read:
-        # with open('maze_layout_no_alt_path.txt', 'r') as maze_read:
-        # with open('maze_layout_complex.txt', 'r') as maze_read:
-        with open('maze_layout_complex_multiple_exit.txt', 'r') as maze_read:
-        # with open('maze_layout_more_complex.txt', 'r') as maze_read:
-        # with open('maze_layout_more_complex2.txt', 'r') as maze_read:
-        # with open('maze_layout_another_complex.txt', 'r') as maze_read:
-        # with open('maze_layout_last_complex.txt', 'r') as maze_read:
+        # with open('Mazes/maze_layout.txt', 'r') as maze_read:
+        # with open('Mazes/maze_layout_no_alt_path.txt', 'r') as maze_read:
+        # with open('Mazes/maze_layout_complex.txt', 'r') as maze_read:
+        with open('Mazes/maze_layout_complex_multiple_exit.txt', 'r') as maze_read:
+        # with open('Mazes/maze_layout_more_complex.txt', 'r') as maze_read:
+        # with open('Mazes/maze_layout_more_complex2.txt', 'r') as maze_read:
+        # with open('Mazes/maze_layout_another_complex.txt', 'r') as maze_read:
+        # with open('Mazes/maze_layout_last_complex.txt', 'r') as maze_read:
             maze_in = maze_read.read().splitlines()
         #get board dimensions
         self.v_size = len(maze_in)
@@ -132,7 +132,7 @@ class Maze(object):
 
         self.solve_path()
 
-    #function not used yet
+
     #this is the vertex section to find the best path
     def solve_path(self):
 
@@ -147,7 +147,9 @@ class Maze(object):
         #     print(" "*5 + "{}{}0\'s\033[0m".format(self.color_dict[temp_color], temp_color))
         # print("Printing vertex maze")
         self.print_vertex_maze()
-        #self.update_vertex_maze()
+        print("End of solve_path, calling update vertex maze")
+        print("Exit path coords: {}\nExit path icons: {}".format(self.exit_path_coords,self.exit_path_icons))
+        self.update_vertex_maze(self.solution_list[0])
 
     #function is used
     #check to see what we need to do with vertex_dict
@@ -178,40 +180,43 @@ class Maze(object):
 
     #used for printing
     #needs to be modified
-    def update_vertex_maze(self):
+    #takes current solution list as an input since it could be a different solution that I want to display
+    def update_vertex_maze(self, curr_solution_list):
         input("Starting solution\n>")
-        v_off_dict = {'Right': 0, 'Left': 0, 'Up': -1, 'Down': 1}
-        h_off_dict = {'Right': 1, 'Left': -1, 'Up': 0, 'Down': 0}
-        dir_icon = {'Right': '>', 'Left': '<', 'Up': '^', 'Down': 'v'}
+        #self.direction_dict =  {'Up':{'icon':'^', 'v_offset': -1, 'h_offset': 0},
+        # v_off_dict = {'Right': 0, 'Left': 0, 'Up': -1, 'Down': 1}
+        # h_off_dict = {'Right': 1, 'Left': -1, 'Up': 0, 'Down': 0}
+        # dir_icon = {'Right': '>', 'Left': '<', 'Up': '^', 'Down': 'v'}
         #print("Current vertex dict: \n{}".format(self.vertex_dict))
-        print("Length of solution list: {}".format(len(self.solution_list)))
-        for index, vertex in enumerate(self.solution_list):
+        print("Length of solution list: {}".format(len(curr_solution_list)))
+        for index, vertex in enumerate(curr_solution_list):
 
-            if index == len(self.solution_list) - 1:
-                print("Made it to last vertex before exit.")
-                print("Exit is at v: {}, h: {} in direction: {}".format(self.e_coords['v'], self.e_coords['h'], self.final_e_dir))
-                final_v = self.e_coords['v']
-                final_h = self.e_coords['h']
-                move_dir = self.final_e_dir
-            else:
-                move_dir = self.vertex_dict[vertex]['adj_dir'][self.solution_list[index + 1]]
-                next_vertex = self.solution_list[index + 1]
-                print("Index: {}, Vertex: {}, Next Vertex: {}, Direction: {}".format(index, vertex, next_vertex, move_dir))
-                final_v = self.vertex_dict[next_vertex]['coord_v']
-                final_h = self.vertex_dict[next_vertex]['coord_h']
+            # if index == len(curr_solution_list) - 1:
+            #     print("Made it to last vertex before exit.")
+            #     print("Exit is at v: {}, h: {} in direction: {}".format(self.vertex_dict['E']['coord_v'], self.vertex_dict['E']['coord_h'], self.final_e_dir))
+            #     final_v = self.e_coords['v']
+            #     final_h = self.e_coords['h']
+            #     move_dir = self.final_e_dir
+            # else:
+            move_dir = self.vertex_dict[vertex]['adj_dir'][curr_solution_list[index + 1]]
+            next_vertex = curr_solution_list[index + 1]
+            print("Index: {}, Vertex: {}, Next Vertex: {}, Direction: {}".format(index, vertex, next_vertex, move_dir))
+            final_v = self.vertex_dict[next_vertex]['coord_v']
+            final_h = self.vertex_dict[next_vertex]['coord_h']
 
             curr_v = self.vertex_dict[vertex]['coord_v']
             curr_h = self.vertex_dict[vertex]['coord_h']
-            curr_icon = dir_icon[move_dir]
-            v_offset = v_off_dict[move_dir]
-            h_offset = h_off_dict[move_dir]
+            curr_icon = self.direction_dict[move_dir]['icon']
+            #curr_icon = dir_icon[move_dir]
+            # v_offset = v_off_dict[move_dir]
+            v_offset = self.direction_dict[move_dir]['v_offset']
+            # h_offset = h_off_dict[move_dir]
+            h_offset = self.direction_dict[move_dir]['h_offset']
             print("curr_v: {}, curr_h: {}".format(curr_v, curr_h))
             print("Next v: {}, next h: {}".format(final_v, final_h))
-            #This part isn't quite working
+
             new_vertex = False
-            # while curr_v != self.vertex_dict[next_vertex]['coord_v'] or curr_h != self.vertex_dict[next_vertex]['coord_h']:
             while new_vertex == False:
-            #     print("TEST PLEASE")
                 if self.vertex_maze[curr_v][curr_h] != 'S':
                     self.vertex_maze[curr_v][curr_h] = curr_icon
                 curr_v += v_offset
@@ -220,8 +225,12 @@ class Maze(object):
                     print("Reached new vertex")
                     new_vertex = True
 
-            #self.print_vertex_maze()
-            input("Next move?\n>")
+            self.print_vertex_maze()
+            if next_vertex == 'E':
+                print("Found exit, returning!")
+                return
+            else:
+                input("Next move?\n>")
 
 
     #this is the graph that I pass to breadth first search
@@ -229,7 +238,7 @@ class Maze(object):
         for vertex in self.vertex_dict.keys():
             #self.build_adj_dir(vertex)
             #want to only take the vertices here, not the direction moving - only want the keys
-            #print("Current adjacent directions for vertex: {}: {}".format(vertex, self.vertex_dict[vertex]['adj_dir']))
+            print("Current adjacent directions for vertex: {}: {}".format(vertex, self.vertex_dict[vertex]['adj_dir']))
             self.final_graph[vertex] = set(self.vertex_dict[vertex]['adj_dir'].keys())
         #print(self.final_graph)
 

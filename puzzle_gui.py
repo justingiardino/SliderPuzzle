@@ -9,7 +9,7 @@ Brown       0;33     Yellow        1;33x
 Light Gray  0;37x     White         1;37
 '\033[0;31m'
 '''
-#use this to print color on mac and regular on windows
+#use this to print color
 import platform
 import time
 
@@ -17,19 +17,6 @@ import time
 if platform.system() == 'Windows':
     import colorama
     colorama.init()
-
-#New idea 6/14 - save each puzzle state (ie where each puzzle piece is at) as a "vertex"
-#when you start the puzzle, that should be stored as vertex 0 for start
-#then try moving one alternate piece, that will be state 2
-
-
-
-
-#issue right now: get stuck in a loop of bad moves, need to fix the bad count logic to go back when a loop is found and try something else
-
-
-
-#can use alt directions to see if there is a better solution
 
 class Board(object):
 
@@ -87,22 +74,19 @@ class Board(object):
         self.print_piece_stats()
 
     def load_board(self):
-        # with open('puzzle_layout.txt', 'r') as puzzle_read:
-        # with open('puzzle_layout2.txt', 'r') as puzzle_read:
-        #     puzzle_in = puzzle_read.read().splitlines()
 
         puzzle_choice = 0
         while puzzle_choice != 1 and puzzle_choice != 2 and puzzle_choice != 3:
             puzzle_choice = int(input("Which puzzle? (1), (2), or (3) \n>"))
 
         if puzzle_choice == 1:
-            with open('puzzle_layout.txt', 'r') as puzzle_read:
+            with open('Sliders/puzzle_layout.txt', 'r') as puzzle_read:
                 puzzle_in = puzzle_read.read().splitlines()
         elif puzzle_choice == 2:
-            with open('puzzle_layout2.txt', 'r') as puzzle_read:
+            with open('Sliders/puzzle_layout2.txt', 'r') as puzzle_read:
                 puzzle_in = puzzle_read.read().splitlines()
         else:
-            with open('puzzle_layout3.txt', 'r') as puzzle_read:
+            with open('Sliders/puzzle_layout3.txt', 'r') as puzzle_read:
                 puzzle_in = puzzle_read.read().splitlines()
 
         #build board
@@ -874,6 +858,14 @@ class Board(object):
             else:
                 print("Not good - bad revert move. Current piece: {}".format(current_move['piece']))
 
+
+    #new method of solving puzzle based on solving maze
+    #find all pieces that can move in any direction and then loop through each of those directions
+    #return when no more directions are found
+    #or max number of bad moves is hit
+    #need to determine what the input parameters will be - current focus piece and current board?
+    #keep track of last move so you don't just move the piece backwards
+    #def solve_puzzle(self, v_search, h_search):
 
 class Piece(object):
 

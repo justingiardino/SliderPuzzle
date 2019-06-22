@@ -1,5 +1,11 @@
 Come up with logic on how to build vertex set for maze.py
 
+want to check all available directions at the same time
+and if there are multiple directions, they should be keeping the same pace with each other
+
+when there is a fork, use try one step in one direction and one step in the other direction
+
+
 if you are moving a new direction
   create a new vertex
 elif you have multiple directions open

@@ -1,5 +1,11 @@
 finish maze vertex and dijkstra logic, then apply to slide puzzle (brute force move all pieces)
 
+Notes from ideas during HPE
+recursion function should have last move as the input
+Check to make sure that move you are trying to do isn't the last move - maybe remove that move the dictionary since every piece has it
+Try all available moves until there are none left, when there are none left undo last move and return a level in recursion
+When you find exit, add E to the current vertex position and then go back a level in recursion so you can check for other directions
+Other than that, should be similar to the maze solver
 
 
 
