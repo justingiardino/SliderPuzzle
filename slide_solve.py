@@ -26,15 +26,18 @@ class Board(object):
         self.piece_objects = {} #keep track of all piece objects, this is the same as the old main_board
         self.vertex_dict = {0:{}} #keep track of possible other moves, "vertices" {Label1: {vertex1: {piece1:direction1}, vertex2: {piece2:direction2}}}
         self.opposite_dir = {'Right':'Left', 'Left':'Right', 'Up':'Down', 'Down':'Up'} #not actually used yet
+        self.game_over = False #when you find the exit turn back around
         self.move_count = 0
+        self.forward_move_list = [] #use this to view the solution that was found
         self.board_list = [] #keep track of all the different board setups I've been in so I don't move back into a bad move
         # self.move_list = [] #used for debugging loop I'm stuck in
 
         print("\n\n\nWelcome to the new slide puzzle solver!\n" + "-"*39)
 
         self.debug_mode = 0
-        while self.debug_mode != 1 and self.debug_mode != 2:
-            self.debug_mode = int(input("Do you want debug mode on?\n1) Yes\n2) No\n>"))
+        valid_debug = [1,2,3]
+        while self.debug_mode not in valid_debug:
+            self.debug_mode = int(input("Do you want debug mode on?\n1) Yes\n2) No\n3) After first exit found\n>"))
 
         #set colors for pieces
         if platform.system() == 'Windows':
@@ -55,22 +58,27 @@ class Board(object):
 
     def load_board(self):
         puzzle_choice = 0
-
-        while puzzle_choice != 1 and puzzle_choice != 2 and puzzle_choice != 3:
-            puzzle_choice = int(input("Which puzzle? (1), (2), or (3) \n>"))
+        puzzle_vals = [1,2,3,4]
+        while puzzle_choice not in puzzle_vals:
+            puzzle_choice = int(input("Which puzzle? (1), (2), (3) or (4) \n>"))
 
         if puzzle_choice == 1:
             with open('Sliders/puzzle_layout.txt', 'r') as puzzle_read:
                 puzzle_in = puzzle_read.read().splitlines()
         elif puzzle_choice == 2:
-            with open('Sliders/puzzle_not_square.txt', 'r') as puzzle_read:
+            with open('Sliders/puzzle_layout2.txt', 'r') as puzzle_read:
                 puzzle_in = puzzle_read.read().splitlines()
-        else:
+        elif puzzle_choice == 3:
             with open('Sliders/puzzle_layout3.txt', 'r') as puzzle_read:
                 puzzle_in = puzzle_read.read().splitlines()
+        elif puzzle_choice == 4:
+            with open('Sliders/puzzle_not_square.txt', 'r') as puzzle_read:
+                puzzle_in = puzzle_read.read().splitlines()
+
 
         self.v_size = len(puzzle_in)
         self.h_size = len(puzzle_in[0])
+        # print("Width of board: {}".format(self.h_size))
         self.show_board = [['.' for x in range(self.h_size)] for y in range(self.v_size)]#initialize show board
 
         #build board
@@ -113,7 +121,12 @@ class Board(object):
             else:
                 for i in range(self.piece_objects[piece].length):
                     self.show_board[self.piece_objects[piece].start_v+i][self.piece_objects[piece].start_h] = piece
-        input("Show board: \n{}\n".format(self.show_board))
+        if self.debug_mode == 1:
+            input("Show board: \n{}\n".format(self.show_board))
+        else:
+            print("Show board: \n{}\n".format(self.show_board))
+
+
 
     #utility function for viewing piece info
     def print_piece_stats(self):
@@ -208,6 +221,14 @@ class Board(object):
         ms_time = round(((end-start) * 1000),4)
         print("Game over, Puzzle solved!\nTime for completion: {} ms".format(ms_time))
 
+    def check_game_over(self):
+        print("Checking for game over..")
+        # self.print_piece_stats()
+        if self.piece_objects['x'].start_h == self.h_size - 2:
+            # print("Game over!")
+            return True
+        else:
+            return False
 
     #main recursive function
     #curr_move should be a dict with the last move = {piece: 'x', direction: 'Right'}
@@ -215,6 +236,10 @@ class Board(object):
     def solve_puzzle(self, curr_move):
         # self.print_board()
         print("Called recursion, last piece moved: {}".format(curr_move['piece']))
+        print("Current forward_move_list: {}\nLength: {}".format(self.forward_move_list, len(self.forward_move_list)))
+        if len(self.forward_move_list) > 99:
+            input("Made it to: {} moves.".format(len(self.forward_move_list)))
+        # print("Current forward_move_list: {}\nLength: {}".format(self.forward_move_list, len(self.forward_move_list)))
         #print("Current move list: {}".format(self.move_list))
         if self.debug_mode == 1:
             input("Continue?\n>")
@@ -225,52 +250,91 @@ class Board(object):
         found_moves = self.check_moves(curr_move['piece'], curr_move['direction'])
         print("Available moves: {}".format(found_moves))
 
+        #if you end up trying a different direction, then you either didn't move forward, or you moved forward and then moved back, so I should check for bad moves before the loop
         #continue to try moving all directions until there are no more to try
         while found_moves:
             try_move = found_moves.pop()
 
-
+            print("At top of found moves loop for last piece: {} direction: {}".format(curr_move['piece'], curr_move['direction']))
+            # print("Current forward_move_list: {}\nLength: {}".format(self.forward_move_list, len(self.forward_move_list)))
             #build new vertex here
-            input("Going to try moving piece: {} in direction: {}\n>".format(try_move['piece'], try_move['direction']))
+
+            if self.debug_mode == 1:
+                input("Going to try moving piece: {} in direction: {}\n>".format(try_move['piece'], try_move['direction']))
+            else:
+                print("Going to try moving piece: {} in direction: {}\n>".format(try_move['piece'], try_move['direction']))
 
             #move the piece
             if(self.move_piece(try_move['piece'], try_move['direction'])):
                 # self.board_list.append(self.show_board)
                 self.move_count += 1
+
                 # self.move_list.append(curr_move)
                 self.print_board()
-                print("Current show board: \n{}".format(self.show_board))
+                # print("Current show board: \n{}".format(self.show_board))
                 # temp_list = self.show_board.copy()
                 # self.board_list.append(temp_list)
                 # self.update_board_list()
                 # self.get_temp_board('x','None')
                 print("Just moved: {}".format(try_move))
-                print("Current board list: {}".format(self.board_list))
-                if self.debug_mode == 1:
-                    input("Next Step?\n>")
-                else:
-                    print("Next Step?\n>")
+                if self.check_game_over() == True:
+                    # print("Game over!!")
+                    if self.debug_mode == 3:
+                        print("Resetting debug mode to 1")
+                        self.debug_mode = 1
 
-                print("Calling recursive function on this new piece")
-                self.solve_puzzle({'piece': try_move['piece'], 'direction': try_move['direction']})
+                    print("Remaining found moves: {}\n\n".format(found_moves))
+                    print("-*-"*22 + "\nCurrent forward move list: {}\n\nNumber of moves tried: {}".format(self.forward_move_list, len(self.forward_move_list)))
+                    self.print_board()
+
+                    if self.debug_mode == 1:
+
+                        input("Exit found! Undoing move to check for other directions\n>")
+                    else:
+                        print("Exit found! Undoing move to check for other directions\n>")
+
+                    self.revert_move(try_move['piece'], try_move['direction'])
+                    self.print_board()
+                    if self.debug_mode == 1:
+                        input("Continue?\n>")
+                    else:
+                        print("Continue?\n>")
+
+
+                else:
+
+                    # print("Current board list: {}".format(self.board_list))
+                    if self.debug_mode == 1:
+                        input("Next Step?\n>")
+                    else:
+                        print("Next Step?\n>")
+
+                    print("Calling recursive function on this new piece")
+                    self.solve_puzzle({'piece': try_move['piece'], 'direction': try_move['direction']})
             else:
                 print("Move piece false on piece: {}".format(try_move['piece']))
 
-        print("No more moves found, last piece that was moved was: {} in direction: {}".format(curr_move['piece'], curr_move['direction']))
+        print("No more moves found, last piece that was moved was: {} in direction: {}\nGoing back one level".format(curr_move['piece'], curr_move['direction']))
         self.print_board()
-        input("\n\n" + "-"*25 + "\nThis is where I need to undo move before going back one level\n>")
+        # input("\n\n" + "-"*25 + "\nThis is where I need to undo move before going back one level\n>")
+        self.revert_move(curr_move['piece'], curr_move['direction'])
+        self.print_board()
 
     #have to create a copy of the current board to avoid the pointer issue
     #checks to see if the attempted move would be a move that has already been made
     #returns boolen of a valid (not duplicate)  move or not
     def get_temp_board(self, piece, direction, curr_board):
+        print("Creating temp board to check if board has already been viewed")
         temp_board = [x[:] for x in curr_board]
         v_offset_piece = 0
         h_offset_piece = 0
         v_offset_blank = 0
         h_offset_blank = 0
 
-        input("temp_board before: {}\n>".format(temp_board))
+        # if self.debug_mode == 1:
+        #     input("temp_board before: {}\n>".format(temp_board))
+        # else:
+        #     print("temp_board before: {}\n>".format(temp_board))
 
         if direction == 'Down':
             v_offset_piece = self.piece_objects[piece].start_v+self.piece_objects[piece].length
@@ -299,32 +363,100 @@ class Board(object):
         else:
             print("No valid direction passed")
 
-        print("Offsets\nv_piece: {}, h_piece: {}\nv_blank: {}, h_blank: {}".format(v_offset_piece, h_offset_piece, v_offset_blank, h_offset_blank))
+        # print("Offsets\nv_piece: {}, h_piece: {}\nv_blank: {}, h_blank: {}".format(v_offset_piece, h_offset_piece, v_offset_blank, h_offset_blank))
         temp_board[v_offset_piece][h_offset_piece] = piece
         temp_board[v_offset_blank][h_offset_blank] = '.'
 
-        input("temp_board after: {}\nChecking to see if board is already in list\n>".format(temp_board))
+        # if self.debug_mode == 1:
+        #     input("temp_board after: {}\nChecking to see if board is already in list\n>".format(temp_board))
+        # else:
+        #     print("temp_board after: {}\nChecking to see if board is already in list\n>".format(temp_board))
+
+        #check to see if this move should be made or not
         if temp_board in self.board_list:
-            print("This board has already been created")
-            input("Current board list: {}\n>".format(self.board_list))
+            # print("This board has already been created")
+            if self.debug_mode == 1:
+                # input("Current board list: {}\n>".format(self.board_list))
+                input("This board has already been created\n>")
+            else:
+                # print("Current board list: {}\n>".format(self.board_list))
+                print("This board has already been created\n>")
             return False
+
         else:
-            print("This board has not been created, adding now")
+            # print("This board has not been created, adding now")
+            if self.debug_mode == 1:
+                # input("Current board list: {}\n>".format(self.board_list))
+                input("This board has not been created, adding now\n>")
+            else:
+                # print("Current board list: {}\n>".format(self.board_list))
+                print("This board has not been created, adding now\n>")
             self.board_list.append(temp_board)
-            input("Current board list: {}\n>".format(self.board_list))
             return True
 
+    #not doing any boundary checking or piece checking, just need to undo the move
+    def revert_move(self, piece, direction):
+        if direction == 'Up':
+            print("Moving: {} back Down".format(piece))
+            #set current pixel to .
+            self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h] = '.'
+            #update pixel below
+            self.show_board[self.piece_objects[piece].start_v+self.piece_objects[piece].length][self.piece_objects[piece].start_h] = piece
+            #update start point
+            self.piece_objects[piece].start_v += 1
+            #remove from forward_move_list
+            self.forward_move_list.pop()
+
+        elif direction == 'Down':
+            print("Moving: {} back Up".format(piece))
+
+            #update start point
+            self.piece_objects[piece].start_v -= 1
+            #set new top to current letter
+            self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h] = piece
+            #set bottom pixel to .
+            self.show_board[self.piece_objects[piece].start_v+self.piece_objects[piece].length][self.piece_objects[piece].start_h] = '.'
+            #remove from forward_move_list
+            self.forward_move_list.pop()
+
+        elif direction == 'Right':
+            print("Moving: {} back Left".format(piece))
+
+            #update start point
+            self.piece_objects[piece].start_h -= 1
+            #set new left to current letter
+            self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h] = piece
+            #set old right pixel to .
+            self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h+self.piece_objects[piece].length] = '.'
+            #remove from forward_move_list
+            self.forward_move_list.pop()
+
+        elif direction == 'Left':
+            print("Moving: {} back Right".format(piece))
+
+            #Set current pixel to .
+            self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h] = '.'
+            #update pixel to the right
+            self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h+self.piece_objects[piece].length] = piece
+            #update start point
+            self.piece_objects[piece].start_h += 1
+            #remove from forward_move_list
+            self.forward_move_list.pop()
+
+        else:
+            print("Not good - bad move in revert move. Current piece: {}".format(piece))
 
 
 
     #before updating board need to make sure this move hasn't already been made
     #run this function assuming that move is valid, not doing any boundary or direction checking
+    #this will not move the piece until it finds that the move has not been made
     def move_piece(self, piece, direction):
         # temp_board = [x[:] for x in self.show_board]
         # input("temp_board before: {}\n>".format(temp_board))
 
         if direction == 'Down':
-            print("Moving: {} down".format(piece))
+            print("Moving: {} Down".format(piece))
             #set current pixel to .
             if(self.get_temp_board(piece,direction, self.show_board) == True):
                 print("New move")
@@ -333,6 +465,7 @@ class Board(object):
                 self.show_board[self.piece_objects[piece].start_v+self.piece_objects[piece].length][self.piece_objects[piece].start_h] = piece
                 #update start point
                 self.piece_objects[piece].start_v += 1
+                self.forward_move_list.append({'piece':piece, 'direction':direction})
                 return True
             else:
                 print("Not a new move, need to try a different direction")
@@ -348,6 +481,7 @@ class Board(object):
                 self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h] = piece
                 #set bottom pixel to .
                 self.show_board[self.piece_objects[piece].start_v+self.piece_objects[piece].length][self.piece_objects[piece].start_h] = '.'
+                self.forward_move_list.append({'piece':piece, 'direction':direction})
                 return True
             else:
                 print("Not a new move, need to try a different direction")
@@ -363,6 +497,7 @@ class Board(object):
                 self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h] = piece
                 #set old right pixel to .
                 self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h+self.piece_objects[piece].length] = '.'
+                self.forward_move_list.append({'piece':piece, 'direction':direction})
                 return True
             else:
                 print("Not a new move, need to try a different direction")
@@ -378,6 +513,7 @@ class Board(object):
                 self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h+self.piece_objects[piece].length] = piece
                 #update start point
                 self.piece_objects[piece].start_h += 1
+                self.forward_move_list.append({'piece':piece, 'direction':direction})
                 return True
             else:
                 print("Not a new move, need to try a different direction")

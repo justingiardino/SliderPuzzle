@@ -1,41 +1,8 @@
-[[
-['.', '.', 'a'],
-['x', 'x', 'a'],
-['.', '.', 'a'],
-['b', '.', '.'],
-['b', 'c', 'c']],
+[{'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'e', 'direction': 'Right'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'a', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'a', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'a', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'f', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'f', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}]
 
-[
-['.', '.', 'a'],
-['x', 'x', 'a'],
-['b', '.', 'a'],
-['b', '.', '.'],
-['.', 'c', 'c']],
 
-[
-['.', '.', 'a'],
-['x', 'x', 'a'],
-['b', '.', 'a'],
-['b', '.', '.'],
-['c', 'c', '.']],
 
-[
-['.', '.', '.'],
-['x', 'x', 'a'],
-['b', '.', 'a'],
-['b', '.', 'a'],
-['c', 'c', '.']],
-
-[
-['.', '.', '.'],
-['x', 'x', 'a'],
-['b', '.', 'a'],
-['b', '.', 'a'],
-['.', 'c', 'c']],
-
-[
-['.', '.', '.'],
-['x', 'x', 'a'],
-['.', '.', 'a'],
-['b', '.', 'a'],
-['b', 'c', 'c']]]
+my_list = [{'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'e', 'direction': 'Right'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'a', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'a', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Down'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'a', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Down'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'b', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'd', 'direction': 'Down'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'd', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'c', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'e', 'direction': 'Left'}, {'piece': 'g', 'direction': 'Left'}, {'piece': 'f', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'g', 'direction': 'Right'}, {'piece': 'f', 'direction': 'Up'}, {'piece': 'g', 'direction': 'Left'}]
+>>> for i, val in enumerate(my_list):
+...     print("i: {}, val: {}".format(i, val))
+... 
