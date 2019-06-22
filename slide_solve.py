@@ -254,9 +254,11 @@ class Board(object):
                 print("Calling recursive function on this new piece")
                 self.solve_puzzle({'piece': try_move['piece'], 'direction': try_move['direction']})
             else:
-                print("Move piece false")
+                print("Move piece false on piece: {}".format(try_move['piece']))
 
-        print("No more moves found for piece: {}".format(curr_move['piece']))
+        print("No more moves found, last piece that was moved was: {} in direction: {}".format(curr_move['piece'], curr_move['direction']))
+        self.print_board()
+        input("\n\n" + "-"*25 + "\nThis is where I need to undo move before going back one level\n>")
 
     #have to create a copy of the current board to avoid the pointer issue
     #checks to see if the attempted move would be a move that has already been made
@@ -284,8 +286,8 @@ class Board(object):
 
         elif direction == 'Left':
 
-            v_offset_piece = self.piece_objects[piece].start_v-1
-            h_offset_piece = self.piece_objects[piece].start_h
+            v_offset_piece = self.piece_objects[piece].start_v
+            h_offset_piece = self.piece_objects[piece].start_h-1
             v_offset_blank = self.piece_objects[piece].start_v
             h_offset_blank = self.piece_objects[piece].start_h+self.piece_objects[piece].length -1
 
