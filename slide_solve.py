@@ -9,6 +9,9 @@ Brown       0;33     Yellow        1;33x
 Light Gray  0;37x     White         1;37
 '\033[0;31m'
 '''
+
+#need to build stats on vertices like moves available
+
 #use this to print color
 import platform
 import time
@@ -22,10 +25,12 @@ class Board(object):
 
     def __init__(self):
         #initialize variables
+        # self.vertex_dict = {}
+        self.num_moves_reverted = 0 #use this to add to vertex label when you have reverted a move
+        self.current_vertex_label = 0
         self.piece_list = [] #keep track of all available pieces on the board
         self.piece_objects = {} #keep track of all piece objects, this is the same as the old main_board
-        self.vertex_dict = {0:{}} #keep track of possible other moves, "vertices" {Label1: {vertex1: {piece1:direction1}, vertex2: {piece2:direction2}}}
-        self.opposite_dir = {'Right':'Left', 'Left':'Right', 'Up':'Down', 'Down':'Up'} #not actually used yet
+        self.vertex_dict = {0:[]} #keep track of possible other moves, old -> "vertices" {Label1: {vertex1: {piece1:direction1}, vertex2: {piece2:direction2}}}
         self.game_over = False #when you find the exit turn back around
         self.move_count = 0
         self.forward_move_list = [] #use this to view the solution that was found
@@ -35,9 +40,9 @@ class Board(object):
         print("\n\n\nWelcome to the new slide puzzle solver!\n" + "-"*39)
 
         self.debug_mode = 0
-        valid_debug = [1,2,3]
+        valid_debug = [1,2,3,4,5]
         while self.debug_mode not in valid_debug:
-            self.debug_mode = int(input("Do you want debug mode on?\n1) Yes\n2) No\n3) After first exit found\n>"))
+            self.debug_mode = int(input("Do you want debug mode on?\n1) Yes\n2) No\n3) After first exit found\n4) After first 100 moves\n5) After first revert move\n>"))
 
         #set colors for pieces
         if platform.system() == 'Windows':
@@ -214,12 +219,14 @@ class Board(object):
         #passing none since x hasn't moved yet
         #calling this to add first show board to board list
         self.get_temp_board('x','None',self.show_board)
-        self.solve_puzzle({'piece': 'x', 'direction':'None'})
+        self.solve_puzzle({'piece': 'x', 'direction':'None', 'vertex_label':0})
         #self.solve_maze_old(self.start_v, self.start_h)
         #self.print_maze()
         end = time.time()
         ms_time = round(((end-start) * 1000),4)
-        print("Game over, Puzzle solved!\nTime for completion: {} ms".format(ms_time))
+        print("Game over, Puzzle solved!\nTime for completion: {} ms.".format(ms_time))
+        self.print_board_list()
+        print("Vertex dict: {}".format(self.vertex_dict))
 
     def check_game_over(self):
         print("Checking for game over..")
@@ -231,14 +238,14 @@ class Board(object):
             return False
 
     #main recursive function
-    #curr_move should be a dict with the last move = {piece: 'x', direction: 'Right'}
+    #curr_move should be a dict with the last move = {piece: 'x', direction: 'Right', vertex_label; 0}
     #instead of curr_move I'm going to have to save the state of the board so I don't do a duplicate move
     def solve_puzzle(self, curr_move):
         # self.print_board()
+        print("All of curr_move: {}".format(curr_move))
         print("Called recursion, last piece moved: {}".format(curr_move['piece']))
         print("Current forward_move_list: {}\nLength: {}".format(self.forward_move_list, len(self.forward_move_list)))
-        if len(self.forward_move_list) > 99:
-            input("Made it to: {} moves.".format(len(self.forward_move_list)))
+
         # print("Current forward_move_list: {}\nLength: {}".format(self.forward_move_list, len(self.forward_move_list)))
         #print("Current move list: {}".format(self.move_list))
         if self.debug_mode == 1:
@@ -253,12 +260,13 @@ class Board(object):
         #if you end up trying a different direction, then you either didn't move forward, or you moved forward and then moved back, so I should check for bad moves before the loop
         #continue to try moving all directions until there are no more to try
         while found_moves:
+            self.current_vertex_label = curr_move['vertex_label']
             try_move = found_moves.pop()
 
-            print("At top of found moves loop for last piece: {} direction: {}".format(curr_move['piece'], curr_move['direction']))
+            print("At top of found moves loop for last piece: {} direction: {}\nCurrent vertex label: {}".format(curr_move['piece'], curr_move['direction'], curr_move['vertex_label']))
             # print("Current forward_move_list: {}\nLength: {}".format(self.forward_move_list, len(self.forward_move_list)))
             #build new vertex here
-
+            print("Current vertex dict: {}".format(self.vertex_dict))
             if self.debug_mode == 1:
                 input("Going to try moving piece: {} in direction: {}\n>".format(try_move['piece'], try_move['direction']))
             else:
@@ -267,7 +275,6 @@ class Board(object):
             #move the piece
             if(self.move_piece(try_move['piece'], try_move['direction'])):
                 # self.board_list.append(self.show_board)
-                self.move_count += 1
 
                 # self.move_list.append(curr_move)
                 self.print_board()
@@ -294,6 +301,7 @@ class Board(object):
                         print("Exit found! Undoing move to check for other directions\n>")
 
                     self.revert_move(try_move['piece'], try_move['direction'])
+
                     self.print_board()
                     if self.debug_mode == 1:
                         input("Continue?\n>")
@@ -310,15 +318,55 @@ class Board(object):
                         print("Next Step?\n>")
 
                     print("Calling recursive function on this new piece")
-                    self.solve_puzzle({'piece': try_move['piece'], 'direction': try_move['direction']})
+                    self.solve_puzzle({'piece': try_move['piece'], 'direction': try_move['direction'], 'vertex_label':self.current_vertex_label})
             else:
                 print("Move piece false on piece: {}".format(try_move['piece']))
 
+        if self.debug_mode == 5:
+            input("Resetting debug to 1\n>")
+            self.debug_mode = 1
         print("No more moves found, last piece that was moved was: {} in direction: {}\nGoing back one level".format(curr_move['piece'], curr_move['direction']))
         self.print_board()
         # input("\n\n" + "-"*25 + "\nThis is where I need to undo move before going back one level\n>")
         self.revert_move(curr_move['piece'], curr_move['direction'])
+        #how can I change current_vertex_label here - ?
         self.print_board()
+
+    def check_board_in_list(self, check_board):
+        print("Starting check board in list")
+        #check each already added board against current
+        #match_found = False
+        for i, board in enumerate(self.board_list):
+            curr_board_diff = False
+            for v in range(self.v_size):
+                if curr_board_diff == True:
+                    break
+                for h in range(self.h_size):
+                    #if pixels don't match then this could be a valid move
+                    # print("v: {}, h: {}, check_board: {}, board: {}".format(v, h, check_board[v][h], board[v][h]))
+                    if check_board[v][h] != board[v][h]:
+                        print("Pieces don't match, going to break")
+                        curr_board_diff = True
+                        break
+                # print("End of h loop")
+            # print("End of v loop(entire board)")
+            if curr_board_diff == False:
+                #match_found = True
+                print("No differences found, this is a match with board: {}".format(i))
+                print("Current vertex label: {}, adding to vertex dict for matching board".format(self.current_vertex_label))
+                #don't creat vertex dict until you need it
+                if self.current_vertex_label not in self.vertex_dict.keys():
+                    self.vertex_dict[self.current_vertex_label] = []
+
+                self.vertex_dict[self.current_vertex_label].append(i)
+                print("Current vertex dict: {}".format(self.vertex_dict))
+
+                return False
+        print("End of board loop(all boards)")
+        print("No match found, this move can be added")
+        return True
+
+
 
     #have to create a copy of the current board to avoid the pointer issue
     #checks to see if the attempted move would be a move that has already been made
@@ -326,16 +374,24 @@ class Board(object):
     def get_temp_board(self, piece, direction, curr_board):
         print("Creating temp board to check if board has already been viewed")
         temp_board = [x[:] for x in curr_board]
-        v_offset_piece = 0
-        h_offset_piece = 0
-        v_offset_blank = 0
-        h_offset_blank = 0
+        #if piece is horizontal
+        if self.piece_objects[piece].direction == 'h':
+            v_offset_piece = self.piece_objects[piece].start_v
+            h_offset_piece = self.piece_objects[piece].start_h
+            v_offset_blank = self.piece_objects[piece].start_v
+            h_offset_blank = self.piece_objects[piece].start_h+self.piece_objects[piece].length
+        else:
+            v_offset_piece = self.piece_objects[piece].start_v
+            h_offset_piece = self.piece_objects[piece].start_h
+            v_offset_blank = self.piece_objects[piece].start_v+self.piece_objects[piece].length
+            h_offset_blank = self.piece_objects[piece].start_h
+
 
         # if self.debug_mode == 1:
         #     input("temp_board before: {}\n>".format(temp_board))
         # else:
         #     print("temp_board before: {}\n>".format(temp_board))
-
+        valid_direction = True #getting weird issue with firs move if I don't have this
         if direction == 'Down':
             v_offset_piece = self.piece_objects[piece].start_v+self.piece_objects[piece].length
             h_offset_piece = self.piece_objects[piece].start_h
@@ -362,18 +418,14 @@ class Board(object):
             h_offset_blank = self.piece_objects[piece].start_h
         else:
             print("No valid direction passed")
+            valid_direction = False
 
         # print("Offsets\nv_piece: {}, h_piece: {}\nv_blank: {}, h_blank: {}".format(v_offset_piece, h_offset_piece, v_offset_blank, h_offset_blank))
-        temp_board[v_offset_piece][h_offset_piece] = piece
-        temp_board[v_offset_blank][h_offset_blank] = '.'
+        if valid_direction == True:
+            temp_board[v_offset_piece][h_offset_piece] = piece
+            temp_board[v_offset_blank][h_offset_blank] = '.'
 
-        # if self.debug_mode == 1:
-        #     input("temp_board after: {}\nChecking to see if board is already in list\n>".format(temp_board))
-        # else:
-        #     print("temp_board after: {}\nChecking to see if board is already in list\n>".format(temp_board))
-
-        #check to see if this move should be made or not
-        if temp_board in self.board_list:
+        if self.check_board_in_list(temp_board) == False:
             # print("This board has already been created")
             if self.debug_mode == 1:
                 # input("Current board list: {}\n>".format(self.board_list))
@@ -392,7 +444,26 @@ class Board(object):
                 # print("Current board list: {}\n>".format(self.board_list))
                 print("This board has not been created, adding now\n>")
             self.board_list.append(temp_board)
+            if self.debug_mode == 1:
+                self.debug_board_list(temp_board)
+                # print("Temp board: {}\nCurrent board list: {}".format(temp_board, self.board_list))
+                input(">")
+
             return True
+
+    def debug_board_list(self,temp_board):
+        print("Temp board:")
+        for row in temp_board:
+            print("\t{}".format(row))
+
+        self.print_board_list()
+
+    def print_board_list(self):
+        print("\n\nBoard list: {}")
+        for i, board in enumerate(self.board_list):
+            print(i)
+            for row in board:
+                print("\t{}".format(row))
 
     #not doing any boundary checking or piece checking, just need to undo the move
     def revert_move(self, piece, direction):
@@ -406,6 +477,7 @@ class Board(object):
             self.piece_objects[piece].start_v += 1
             #remove from forward_move_list
             self.forward_move_list.pop()
+
 
         elif direction == 'Down':
             print("Moving: {} back Up".format(piece))
@@ -454,6 +526,9 @@ class Board(object):
     def move_piece(self, piece, direction):
         # temp_board = [x[:] for x in self.show_board]
         # input("temp_board before: {}\n>".format(temp_board))
+        if len(self.forward_move_list) + 1 > 99:
+            print("This would put me over 100, shouldn't move")
+            return False
 
         if direction == 'Down':
             print("Moving: {} Down".format(piece))
@@ -466,6 +541,15 @@ class Board(object):
                 #update start point
                 self.piece_objects[piece].start_v += 1
                 self.forward_move_list.append({'piece':piece, 'direction':direction})
+                #adding to vertex dict
+                #don't creat vertex dict until you need it
+                if self.current_vertex_label not in self.vertex_dict.keys():
+                    self.vertex_dict[self.current_vertex_label] = []
+
+                self.vertex_dict[self.current_vertex_label].append(len(self.forward_move_list))
+                self.current_vertex_label = len(self.board_list) - 1#increment vertex label
+                # self.vertex_dict[self.current_vertex_label] = []
+                print("Current vertex dict: {}".format(self.vertex_dict))
                 return True
             else:
                 print("Not a new move, need to try a different direction")
@@ -482,6 +566,14 @@ class Board(object):
                 #set bottom pixel to .
                 self.show_board[self.piece_objects[piece].start_v+self.piece_objects[piece].length][self.piece_objects[piece].start_h] = '.'
                 self.forward_move_list.append({'piece':piece, 'direction':direction})
+                #don't creat vertex dict until you need it
+                if self.current_vertex_label not in self.vertex_dict.keys():
+                    self.vertex_dict[self.current_vertex_label] = []
+
+                self.vertex_dict[self.current_vertex_label].append(len(self.forward_move_list))
+                self.current_vertex_label = len(self.board_list) - 1
+                # self.vertex_dict[self.current_vertex_label] = []
+                print("Current vertex dict: {}".format(self.vertex_dict))
                 return True
             else:
                 print("Not a new move, need to try a different direction")
@@ -498,6 +590,14 @@ class Board(object):
                 #set old right pixel to .
                 self.show_board[self.piece_objects[piece].start_v][self.piece_objects[piece].start_h+self.piece_objects[piece].length] = '.'
                 self.forward_move_list.append({'piece':piece, 'direction':direction})
+                #don't creat vertex dict until you need it
+                if self.current_vertex_label not in self.vertex_dict.keys():
+                    self.vertex_dict[self.current_vertex_label] = []
+
+                self.vertex_dict[self.current_vertex_label].append(len(self.forward_move_list))
+                self.current_vertex_label = len(self.board_list) - 1
+                # self.vertex_dict[self.current_vertex_label] = []
+                print("Current vertex dict: {}".format(self.vertex_dict))
                 return True
             else:
                 print("Not a new move, need to try a different direction")
@@ -514,6 +614,14 @@ class Board(object):
                 #update start point
                 self.piece_objects[piece].start_h += 1
                 self.forward_move_list.append({'piece':piece, 'direction':direction})
+                #don't creat vertex dict until you need it
+                if self.current_vertex_label not in self.vertex_dict.keys():
+                    self.vertex_dict[self.current_vertex_label] = []
+
+                self.vertex_dict[self.current_vertex_label].append(len(self.forward_move_list))
+                self.current_vertex_label = len(self.board_list) - 1
+                # self.vertex_dict[self.current_vertex_label] = []
+                print("Current vertex dict: {}".format(self.vertex_dict))
                 return True
             else:
                 print("Not a new move, need to try a different direction")
