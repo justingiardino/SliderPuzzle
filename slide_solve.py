@@ -199,13 +199,6 @@ class Board(object):
                             move_list.append({'piece': piece, 'direction': 'Right'})
         return move_list
 
-    # def update_board_list(self):
-    #     # temp_board = [x[:] for x in self.show_board]
-    #     # if temp_board in self.board_list:
-    #     #     print("This board already existed")
-    #     # print(temp_board)
-    #     self.board_list.append(temp_board)
-
 
     #main function
     def launch_solver(self):
@@ -226,7 +219,9 @@ class Board(object):
         ms_time = round(((end-start) * 1000),4)
         print("Game over, Puzzle solved!\nTime for completion: {} ms.".format(ms_time))
         self.print_board_list()
-        print("Vertex dict: {}".format(self.vertex_dict))
+        print("Vertex dict")
+        for curr_vertex in self.vertex_dict.keys():
+            print("Vertex: {}, Adjacencies: {}".format(curr_vertex, self.vertex_dict[curr_vertex]))
 
     def check_game_over(self):
         print("Checking for game over..")
@@ -263,7 +258,7 @@ class Board(object):
             self.current_vertex_label = curr_move['vertex_label']
             try_move = found_moves.pop()
 
-            print("At top of found moves loop for last piece: {} direction: {}\nCurrent vertex label: {}".format(curr_move['piece'], curr_move['direction'], curr_move['vertex_label']))
+            print("At top of found moves loop for last piece: {} direction: {}\nCurrent vertex label: {}\nRemaining moves: {}".format(curr_move['piece'], curr_move['direction'], curr_move['vertex_label'], found_moves))
             # print("Current forward_move_list: {}\nLength: {}".format(self.forward_move_list, len(self.forward_move_list)))
             #build new vertex here
             print("Current vertex dict: {}".format(self.vertex_dict))
@@ -293,24 +288,25 @@ class Board(object):
                     print("Remaining found moves: {}\n\n".format(found_moves))
                     print("-*-"*22 + "\nCurrent forward move list: {}\n\nNumber of moves tried: {}".format(self.forward_move_list, len(self.forward_move_list)))
                     self.print_board()
-
+                    print("Current vertex label: {}\nCurrent vertex dict: {}".format(self.current_vertex_label,self.vertex_dict))
                     if self.debug_mode == 1:
 
                         input("Exit found! Undoing move to check for other directions\n>")
                     else:
                         print("Exit found! Undoing move to check for other directions\n>")
 
-                    self.revert_move(try_move['piece'], try_move['direction'])
+                    #still need to create a dictionary value at this point
+                    #but it should be just a vertex and an empty list
+                    #create an list of vertexes where exit is at
+                    #  START HERE
 
+                    self.revert_move(try_move['piece'], try_move['direction'])
                     self.print_board()
                     if self.debug_mode == 1:
                         input("Continue?\n>")
                     else:
                         print("Continue?\n>")
-
-
                 else:
-
                     # print("Current board list: {}".format(self.board_list))
                     if self.debug_mode == 1:
                         input("Next Step?\n>")

@@ -1,5 +1,6 @@
-..a
-xxa
-..a
-b..
-bcc
+.dd.
+..a.
+xxa.
+..a.
+b...
+bcc.
